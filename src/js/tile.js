@@ -36,7 +36,7 @@ export class Tile {
     const px = Tile.coordToPx({ x: this.x, y: this.y })
     this.px = px.x
     this.py = px.y
-    //fukin axial position / cubic position
+    //fukin axial position / cubic
     const axial = coordToAxial({ x: this.x, y: this.y })
     this.q = axial.q
     this.r = axial.r
@@ -75,8 +75,9 @@ export class Tile {
       p5.translate(this.px, this.py)
       p5.text(this.path, 0, 0)
       p5.pop()
-
     }
+
+    //if this has an event then you can change color or w/e
   }
 
   checkMouse(p5) {

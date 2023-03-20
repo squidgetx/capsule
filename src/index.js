@@ -2,6 +2,7 @@
 import p5 from 'p5'
 import { Tile } from './js/tile';
 import { Map } from './js/map';
+import { events } from './js/events';
 
 const sketch = (p5) => {
 
@@ -49,11 +50,15 @@ const sketch = (p5) => {
             playerX += dX / 10
             playerY += dY / 10
             let playerCoord = Tile.pxToCoord({ x: playerX, y: playerY })
-            playerTile = Map.getTile(playerCoord.x, playerCoord.y)
-            //check if the new tile triggers an event
-            //if yes, stop movement and run event
-            // random events, events that are selected when tile has [some attribute]
-            //events are comprised of: narrative text, some stat effect (no stats atm), that's it.
+            playerTile = Map.getTile(playerCoord)
+            if (playerTile.event) {
+                //display event stuff
+                console.log(playerTile.event.title)
+                //stop movement
+                animating = false
+                waypointPath = [];
+                waypoints = []
+            }
             playerTile.path = null
             playerTile.waypoint = null
         }

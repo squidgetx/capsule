@@ -1,5 +1,6 @@
 import { Tile } from "./tile"
 import { cube_round, axialDist, axialToCoord } from "./hex"
+import { events } from './events';
 
 export const Map = {
     width: 6,
@@ -17,6 +18,9 @@ Map.generateTiles = () => {
             Map.tiles.push(new Tile(i, j))
         }
     }
+
+    //select a handfull of random tiles, give them events
+    Map.tiles[0].event = events.asteroids;
 }
 
 Map.draw = (p5) => {
