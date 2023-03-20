@@ -1,4 +1,5 @@
 import { Tile } from "./tile"
+import { cube_round, axialDist, axialToCoord } from "./hex"
 
 export const Map = {
     width: 6,
@@ -6,8 +7,8 @@ export const Map = {
     tiles: [],
 }
 
-Map.getTile = (x, y) => {
-    return Map.tiles[y * Map.width + x]
+Map.getTile = (coord) => {
+    return Map.tiles[coord.y * Map.width + coord.x]
 }
 
 Map.generateTiles = () => {
@@ -25,30 +26,30 @@ Map.draw = (p5) => {
     }
 }
 
-// Path finding //
 
 Map.getTilePath = (p5, start, end) => {
-    const steps = Tile.axialDist(start, end) + 1
+    const steps = axialDist(start, end) + 1
     console.log(start, end, steps - 1)
-    const dX = end.px - start.px
-    const dY = end.py - start.py
-    const dXstep = dX / steps
-    const dYstep = dY / steps
+    const dQ = end.q - start.q
+    const dR = end.r - start.r
+    const dS = end.s - start.s
+    const dQStep = dQ / steps
+    const dRStep = dR / steps
+    const dSStep = dS / steps
 
-    let x = start.px
-    let y = start.py
+    const pt = { q: start.q, r: start.r, s: start.s }
     const path = [start]
 
     for (let i = 0; i < steps; i++) {
-        const tileCoord = Tile.pxToCoord({ x: x + 1, y: y + 1 })
-        const index = tileCoord.y * Map.width + tileCoord.x
-        const currentTile = Map.tiles[index]
+        const tileCoord = axialToCoord(cube_round(pt))
+        const currentTile = Map.getTile(tileCoord)
         const lastTileInPath = path.slice(-1)[0]
         if (currentTile != lastTileInPath) {
             path.push(currentTile)
         }
-        x += dXstep
-        y += dYstep
+        pt.q += dQStep
+        pt.r += dRStep
+        pt.s += dSStep
     }
 
     return path

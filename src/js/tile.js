@@ -1,3 +1,4 @@
+import { coordToAxial } from "./hex";
 
 export const tile_size_px = 60;
 const HEXAGON_CONSTANT = Math.sqrt(3) / 2
@@ -33,7 +34,7 @@ export class Tile {
     const px = Tile.coordToPx({ x: this.x, y: this.y })
     this.px = px.x
     this.py = px.y
-    const axial = Tile.coordToAxial({ x: this.x, y: this.y })
+    const axial = coordToAxial({ x: this.x, y: this.y })
     this.q = axial.q
     this.r = axial.r
     this.s = -this.q - this.r
@@ -54,19 +55,6 @@ export class Tile {
     const x = Math.round((coord.x - offset) / tile_size_px - 0.5)
     return { x: x, y: y }
   }
-
-  static coordToAxial(hex) {
-    const q = hex.x - (hex.y - (hex.y & 1)) / 2
-    const r = hex.y
-    return { q, r, s: -q - r }
-  }
-
-  static axialDist(a, b) {
-    return (Math.abs(a.q - b.q)
-      + Math.abs(a.q + a.r - b.q - b.r)
-      + Math.abs(a.r - b.r)) / 2
-  }
-
 
   draw(p5) {
     let color = DEFAULT_COLOR

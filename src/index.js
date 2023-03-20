@@ -48,7 +48,7 @@ const sketch = (p5) => {
             playerX += dX / 10
             playerY += dY / 10
             let playerCoord = Tile.pxToCoord({ x: playerX, y: playerY })
-            playerTile = Map.getTile(playerCoord.x, playerCoord.y)
+            playerTile = Map.getTile(playerCoord)
             playerTile.path = null
             playerTile.waypoint = null
         }
