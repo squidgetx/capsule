@@ -1,26 +1,54 @@
 // Test import of a JavaScript module
-import { example } from '@/js/example'
+import p5 from 'p5'
+import { Tile } from './js/tile';
 
-// Test import of an asset
-import webpackLogo from '@/images/webpack-logo.svg'
+const sketch = (p5) => {
 
-// Test import of styles
-import '@/styles/index.scss'
+    const tiles = []
+    const map_width_tiles = 6;
+    const canvas_width = 1000;
 
-// Appending to the DOM
-const logo = document.createElement('img')
-logo.src = webpackLogo
+    let pX = 1, pY = 1
 
-const heading = document.createElement('h1')
-heading.textContent = example()
+    const generate_tiles = () => {
+        for (let i = 0; i < map_width_tiles * map_width_tiles; i++) {
+            tiles.push(new Tile(i, map_width_tiles))
+        }
+    }
 
-// Test a background image url in CSS
-const imageBackground = document.createElement('div')
-imageBackground.classList.add('image')
+    const draw_tiles = () => {
+        for (const tile of tiles) {
+            tile.checkMouse(p5)
+            tile.draw(p5)
+        }
+    }
 
-// Test a public folder asset
-const imagePublic = document.createElement('img')
-imagePublic.src = '/assets/example.png'
+    const drawPlayer = () => {
+        const c = Tile.coordToPx({ x: pX, y: pY })
+        p5.strokeWeight(0)
+        p5.circle(c.x, c.y, 10)
+    }
 
-const app = document.querySelector('#root')
-app.append(logo, heading, imageBackground, imagePublic)
+    p5.setup = () => {
+        generate_tiles()
+        p5.createCanvas(canvas_width, canvas_width * 9 / 16);
+        p5.background('grey')
+    }
+
+    p5.draw = () => {
+        draw_tiles()
+        p5.fill('red')
+        drawPlayer()
+    }
+
+    p5.mouseClicked = () => {
+        const clickedTile = tiles.find((t) => t.selected)
+        if (clickedTile) {
+            pX = clickedTile.x
+            pY = clickedTile.y
+        }
+    }
+
+}
+
+new p5(sketch)
