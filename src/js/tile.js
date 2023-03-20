@@ -29,11 +29,14 @@ const draw_hexagon = (p5, transX, transY, s, color) => {
 // class to manage tiles
 export class Tile {
   constructor(x, y) {
+    //grid position
     this.x = x
     this.y = y
+    //pixel position
     const px = Tile.coordToPx({ x: this.x, y: this.y })
     this.px = px.x
     this.py = px.y
+    //fukin axial position / cubic position
     const axial = coordToAxial({ x: this.x, y: this.y })
     this.q = axial.q
     this.r = axial.r
