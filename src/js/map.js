@@ -97,7 +97,7 @@ Map.markWaypointPath = (p5, start, waypoints) => {
 }
 
 Map.exploreAdjacentTiles = (tile) => {
-    // Return array of adjacent tiles to the given tile
+    // Mark adjacent tiles to the given tile as explored
     const adjacentAxial = [
         { q: tile.q + 1, r: tile.r },
         { q: tile.q - 1, r: tile.r },
@@ -106,7 +106,11 @@ Map.exploreAdjacentTiles = (tile) => {
         { q: tile.q, r: tile.r + 1 },
         { q: tile.q, r: tile.r - 1 },
     ]
-    const adjacentTiles = adjacentAxial.map(a => Map.getTile(axialToCoord(a))).filter(a => a != null)
-    tile.explored = true
+    const adjacentTiles = adjacentAxial.map(
+        a => Map.getTile(axialToCoord(a))
+    ).filter(a => a != null)
+
     adjacentTiles.forEach(t => t.explored = true)
+
+    tile.explored = true
 }
