@@ -37,3 +37,35 @@ export const cube_round = (pt) => {
     }
     return { q, r, s }
 }
+
+export const CUBE_DIRS = {
+    E: { q: 1, r: 0 },
+    NE: { q: 1, r: -1 },
+    NW: { q: 0, r: -1 },
+    W: { q: -1, r: 0 },
+    SW: { q: -1, r: 1 },
+    SE: { q: 0, r: 1 }
+}
+
+const axial_scale = (ax, factor) => {
+    return {
+        q: ax.q * factor, r: ax.r * factor
+    }
+}
+
+const axial_add = (a, b) => {
+    return {
+        q: a.q + b.q, r: a.r + b.r
+    }
+}
+
+const axial_move = (a, dir, dist) => {
+    return axial_add(a, axial_scale(dir, dist))
+}
+
+export const cube_ring = (center, radius) => {
+    const results = []
+    // Travel to the SW point on the outer ring
+    const start = axial_move(center, CUBE_DIRS.SW, radius)
+    // Each side of the ring is 'radius' units long
+}

@@ -3,6 +3,7 @@ import p5 from 'p5'
 import { Tile } from './js/tile';
 import { Map } from './js/map';
 import { events } from './js/events';
+import { renderSignals } from './js/signals';
 import '@/styles/index.scss';
 
 const sketch = (p5) => {
@@ -26,6 +27,13 @@ const sketch = (p5) => {
         p5.circle(playerX, playerY, 10)
     }
 
+    const stopMoving = () => {
+        animating = false
+        waypointPath = [];
+        waypoints = []
+        return
+    }
+
     // move the player to the movingTo destination
     // if we are there already, get the next tile from the queue (waypointPath)
     // if the queue is empty, we have arrived at the final destination
@@ -38,19 +46,19 @@ const sketch = (p5) => {
         const dX = movingTo.px - playerX
         const dY = movingTo.py - playerY
         if (Math.sqrt(dX * dX + dY * dY) < 1) {
+            // we arrived at the next tile, now start moving to the next one
             movingTo = waypointPath.shift()
-            //stop movement
+            // stop moving if there are no more places to go next
             if (movingTo == undefined) {
-                animating = false
-                waypointPath = [];
-                waypoints = []
-                return
+                stopMoving()
             }
         } else {
             playerX += dX / 10
             playerY += dY / 10
             let playerCoord = Tile.pxToCoord({ x: playerX, y: playerY })
             playerTile = Map.getTile(playerCoord)
+            const signals = Map.getSignals(playerTile)
+            renderSignals(signals)
             if (playerTile.event) {
                 //display event stuff
                 document.getElementById("event").classList.add('show');
@@ -58,10 +66,7 @@ const sketch = (p5) => {
                 document.getElementById("e-text").innerHTML = playerTile.event.text;
                 document.getElementById("e-result").innerHTML = playerTile.event.effect;
 
-                //stop movement
-                animating = false
-                waypointPath = [];
-                waypoints = []
+                stopMoving()
             } else {
                 document.getElementById("event").classList.remove('show')
             }
@@ -117,4 +122,4 @@ const sketch = (p5) => {
 
 }
 
-new p5(sketch);
+new p5(sketch, document.getElementById('nav'));

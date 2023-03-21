@@ -29,6 +29,10 @@ Map.generateTiles = () => {
     Map.tiles[0].event = events.asteroids;
     Map.tiles[5].event = events.signal;
     Map.tiles[15].event = events.pirates;
+    Map.tiles[21].signal = {
+        strength: 3,
+        text: "test signal"
+    }
 }
 
 Map.draw = (p5) => {
@@ -111,4 +115,16 @@ Map.exploreAdjacentTiles = (tile) => {
     const adjacentTiles = adjacentAxial.map(a => Map.getTile(axialToCoord(a))).filter(a => a != null)
     tile.explored = true
     adjacentTiles.forEach(t => t.explored = true)
+}
+
+// Return array of signals
+Map.getSignals = (playerTile) => {
+    const signalTiles = Map.tiles.filter(t => t.signal != undefined)
+    // visible signals are within distance 'signal.strength' from the player
+    const visibleSignalTiles = signalTiles.filter(t => axialDist(t, playerTile) < t.signal.strength)
+    return visibleSignalTiles.map(t => {
+        t.signal.distance = axialDist(t, playerTile);
+        return t.signal
+    }
+    )
 }
