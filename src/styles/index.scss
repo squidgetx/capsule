@@ -3,5 +3,33 @@
   src: url('../fonts/Inter.ttf');
 }
 
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#event {
+  margin: 1em;
+  padding: .5em;
+  text-align: left;
+  border: 1px solid red;
+  opacity: 0;
+  width: 30vw;
+  height: 25vh;
+  transition: opacity 1s ease-out;
+}
+
+.show {
+  border: 1px solid red;
+  opacity: 1 !important;
+}
+
+#event small {
+  color: red;
+  padding: .5em;
+}
+
 @import 'variables';
 @import 'scaffolding';

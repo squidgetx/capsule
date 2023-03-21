@@ -3,10 +3,11 @@ import p5 from 'p5'
 import { Tile } from './js/tile';
 import { Map } from './js/map';
 import { events } from './js/events';
+import '@/styles/index.scss';
 
 const sketch = (p5) => {
 
-    const canvas_width = 1000;
+    const canvas_width = 600;
 
     // player locations
     let playerX, playerY;
@@ -17,7 +18,6 @@ const sketch = (p5) => {
     let waypointPath = [];
     let animating = false
     let movingTo = null
-
 
     // player methods
     const drawPlayer = () => {
@@ -53,12 +53,19 @@ const sketch = (p5) => {
             playerTile = Map.getTile(playerCoord)
             if (playerTile.event) {
                 //display event stuff
-                console.log(playerTile.event.title)
+                document.getElementById("event").classList.add('show');
+                document.getElementById("e-title").innerHTML = playerTile.event.title;
+                document.getElementById("e-text").innerHTML = playerTile.event.text;
+                document.getElementById("e-result").innerHTML = playerTile.event.effect;
+
                 //stop movement
                 animating = false
                 waypointPath = [];
                 waypoints = []
+            } else {
+                document.getElementById("event").classList.remove('show')
             }
+
             playerTile.path = null
             playerTile.waypoint = null
         }
@@ -66,6 +73,7 @@ const sketch = (p5) => {
 
     p5.setup = () => {
         Map.generateTiles()
+        //aspect ratio
         p5.createCanvas(canvas_width, canvas_width * 9 / 16);
         playerTile = Map.tiles[7]
         playerX = playerTile.px
@@ -73,7 +81,7 @@ const sketch = (p5) => {
     }
 
     p5.draw = () => {
-        p5.background('grey')
+        p5.background('white')
         Map.draw(p5)
         movePlayer()
         drawPlayer()
@@ -104,7 +112,6 @@ const sketch = (p5) => {
         movingTo = waypointPath.shift()
     }
 
-
 }
 
-new p5(sketch)
+new p5(sketch);
