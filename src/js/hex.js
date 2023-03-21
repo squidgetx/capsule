@@ -63,9 +63,3 @@ const axial_move = (a, dir, dist) => {
     return axial_add(a, axial_scale(dir, dist))
 }
 
-export const cube_ring = (center, radius) => {
-    const results = []
-    // Travel to the SW point on the outer ring
-    const start = axial_move(center, CUBE_DIRS.SW, radius)
-    // Each side of the ring is 'radius' units long
-}
