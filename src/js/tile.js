@@ -5,7 +5,8 @@ const HEXAGON_CONSTANT = Math.sqrt(3) / 2
 
 const SELECTED_COLOR = 'blue';
 const WAYPOINT_COLOR = 'green';
-const DEFAULT_COLOR = '#444'
+const EXPLORED_COLOR = '#444'
+const VISIBLE_COLOR = '#aaa'
 const HIDDEN_COLOR = 'black'
 
 // draw a hexagon to the p5 context at x, y, with size s and given color
@@ -64,7 +65,17 @@ export class Tile {
   draw(p5) {
     let color = HIDDEN_COLOR
     if (this.explored) {
-      color = DEFAULT_COLOR
+      color = EXPLORED_COLOR
+    }
+    if (this.visible) {
+      color = VISIBLE_COLOR
+    }
+
+    if (this.event || this.signal) {
+      color = 'purple';
+    }
+    if (this.path) {
+      color = '#72A0C1'
     }
     if (this.waypoint) {
       color = WAYPOINT_COLOR
@@ -72,13 +83,13 @@ export class Tile {
     if (this.selected) {
       color = SELECTED_COLOR
     }
-    if (this.event || this.signal) {
-      color = 'purple';
-    }
+
+
 
     draw_hexagon(p5, this.px, this.py, tile_size_px / 2.1, color)
 
-    if (this.path) {
+    if (false && this.path) {
+      // turn on to see path numbers
       p5.push()
       p5.translate(this.px, this.py)
       p5.text(this.path, 0, 0)

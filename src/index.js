@@ -29,8 +29,13 @@ const sketch = (p5) => {
 
     const stopMoving = () => {
         animating = false
+        movingTo = null
         waypointPath = [];
         waypoints = []
+        for (const t of Map.tiles) {
+            t.path = null
+            t.waypoint = null
+        }
         return
     }
 
@@ -52,25 +57,25 @@ const sketch = (p5) => {
             if (movingTo == undefined) {
                 stopMoving()
             }
-        } else {
-            playerX += dX / 10
-            playerY += dY / 10
-            let playerCoord = Tile.pxToCoord({ x: playerX, y: playerY })
-            playerTile = Map.getTile(playerCoord)
             const signals = Map.getSignals(playerTile)
             renderSignals(signals)
+            let playerCoord = Tile.pxToCoord({ x: playerX, y: playerY })
+            playerTile = Map.getTile(playerCoord)
             if (playerTile.event) {
                 //display event stuff
                 document.getElementById("event").classList.add('show');
                 document.getElementById("e-title").innerHTML = playerTile.event.title;
                 document.getElementById("e-text").innerHTML = playerTile.event.text;
                 document.getElementById("e-result").innerHTML = playerTile.event.effect;
-
                 stopMoving()
             } else {
                 document.getElementById("event").classList.remove('show')
             }
-
+        } else {
+            playerX += dX / 8
+            playerY += dY / 8
+            let playerCoord = Tile.pxToCoord({ x: playerX, y: playerY })
+            playerTile = Map.getTile(playerCoord)
             playerTile.path = null
             playerTile.waypoint = null
         }
@@ -92,6 +97,14 @@ const sketch = (p5) => {
         drawPlayer()
         if (movingTo == null) {
             Map.exploreAdjacentTiles(playerTile)
+
+            // draw hypothetical path
+            const hoveredTile = Map.tiles.find((t) => t.selected)
+            const waypoint_copy = [...waypoints]
+            if (hoveredTile) {
+                waypoint_copy.push(hoveredTile)
+            }
+            Map.markWaypointPath(p5, playerTile, waypoint_copy)
         }
     }
 
@@ -101,8 +114,9 @@ const sketch = (p5) => {
             return
         const clickedTile = Map.tiles.find((t) => t.selected)
         if (clickedTile) {
-            if (clickedTile.waypoint) {
-                waypoints = waypoints.splice(waypoints.indexOf(clickedTile), 1)
+            const indexClicked = waypoints.indexOf(clickedTile)
+            if (indexClicked != -1) {
+                waypoints = waypoints.splice(indexClicked, -1)
                 clickedTile.waypoint = false
             } else {
                 waypoints.push(clickedTile)

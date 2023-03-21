@@ -1,6 +1,7 @@
 import { Tile } from "./tile"
 import { cube_round, axialDist, axialToCoord } from "./hex"
 import { events } from './events';
+import { clamp } from "./util"
 
 export const Map = {
     width: 6,
@@ -16,6 +17,14 @@ Map.getTile = (coord) => {
         return null
     }
     return Map.tiles[coord.y * Map.width + coord.x]
+}
+
+// Always returns a tile - if the coordinates are out of bounds attempts
+// to re-place the tile in bounds
+Map.getTileBounded = (ax) => {
+    const q = clamp(ax.q, 0, Map.height)
+    const r = clamp(ax.r, 0, Map.width)
+    return Map.tiles[y * Map.width + x]
 }
 
 Map.generateTiles = () => {
@@ -40,11 +49,11 @@ Map.draw = (p5) => {
         tile.checkMouse(p5)
         tile.draw(p5)
     }
+
 }
 
 Map.getTilePath = (p5, start, end) => {
     const steps = axialDist(start, end) + 1
-    console.log(start, end, steps - 1)
     const dQ = end.q - start.q
     const dR = end.r - start.r
     const dS = end.s - start.s
@@ -52,14 +61,16 @@ Map.getTilePath = (p5, start, end) => {
     const dRStep = dR / steps
     const dSStep = dS / steps
 
-    const pt = { q: start.q, r: start.r, s: start.s }
+
+    const pt = { q: start.q + 0.01, r: start.r + 0.01, s: start.s - 0.02 }
     const path = [start]
+
 
     for (let i = 0; i < steps; i++) {
         const tileCoord = axialToCoord(cube_round(pt))
         const currentTile = Map.getTile(tileCoord)
         const lastTileInPath = path.slice(-1)[0]
-        if (currentTile != lastTileInPath) {
+        if (currentTile && currentTile != lastTileInPath) {
             path.push(currentTile)
         }
         pt.q += dQStep
@@ -99,11 +110,13 @@ Map.markWaypointPath = (p5, start, waypoints) => {
     for (const i in path) {
         path[i].path = i
     }
-    return path
+    if (path[0] == start)
+        return path.slice(1)
 }
 
 Map.exploreAdjacentTiles = (tile) => {
     // Return array of adjacent tiles to the given tile
+    Map.tiles.forEach(t => t.visible = false)
     const adjacentAxial = [
         { q: tile.q + 1, r: tile.r },
         { q: tile.q - 1, r: tile.r },
@@ -114,7 +127,9 @@ Map.exploreAdjacentTiles = (tile) => {
     ]
     const adjacentTiles = adjacentAxial.map(a => Map.getTile(axialToCoord(a))).filter(a => a != null)
     tile.explored = true
+    tile.visible = true
     adjacentTiles.forEach(t => t.explored = true)
+    adjacentTiles.forEach(t => t.visible = true)
 }
 
 // Return array of signals
