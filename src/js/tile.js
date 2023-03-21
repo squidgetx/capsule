@@ -72,7 +72,7 @@ export class Tile {
     if (this.selected) {
       color = SELECTED_COLOR
     }
-    if (this.event) {
+    if (this.event || this.signal) {
       color = 'purple';
     }
 
