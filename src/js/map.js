@@ -9,6 +9,12 @@ export const Map = {
 }
 
 Map.getTile = (coord) => {
+    if (coord.y < 0 || coord.y >= Map.height) {
+        return null
+    }
+    if (coord.x < 0 || coord.x >= Map.width) {
+        return null
+    }
     return Map.tiles[coord.y * Map.width + coord.x]
 }
 
@@ -31,7 +37,6 @@ Map.draw = (p5) => {
         tile.draw(p5)
     }
 }
-
 
 Map.getTilePath = (p5, start, end) => {
     const steps = axialDist(start, end) + 1
@@ -91,4 +96,19 @@ Map.markWaypointPath = (p5, start, waypoints) => {
         path[i].path = i
     }
     return path
+}
+
+Map.exploreAdjacentTiles = (tile) => {
+    // Return array of adjacent tiles to the given tile
+    const adjacentAxial = [
+        { q: tile.q + 1, r: tile.r },
+        { q: tile.q - 1, r: tile.r },
+        { q: tile.q + 1, r: tile.r - 1 },
+        { q: tile.q - 1, r: tile.r + 1 },
+        { q: tile.q, r: tile.r + 1 },
+        { q: tile.q, r: tile.r - 1 },
+    ]
+    const adjacentTiles = adjacentAxial.map(a => Map.getTile(axialToCoord(a))).filter(a => a != null)
+    tile.explored = true
+    adjacentTiles.forEach(t => t.explored = true)
 }

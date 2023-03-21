@@ -2,9 +2,11 @@ import { coordToAxial } from "./hex";
 
 export const tile_size_px = 60;
 const HEXAGON_CONSTANT = Math.sqrt(3) / 2
+
 const SELECTED_COLOR = 'blue';
 const WAYPOINT_COLOR = 'green';
-const DEFAULT_COLOR = 'black'
+const DEFAULT_COLOR = '#444'
+const HIDDEN_COLOR = 'black'
 
 // draw a hexagon to the p5 context at x, y, with size s and given color
 const draw_hexagon = (p5, transX, transY, s, color) => {
@@ -60,7 +62,10 @@ export class Tile {
   }
 
   draw(p5) {
-    let color = DEFAULT_COLOR
+    let color = HIDDEN_COLOR
+    if (this.explored) {
+      color = DEFAULT_COLOR
+    }
     if (this.waypoint) {
       color = WAYPOINT_COLOR
     }

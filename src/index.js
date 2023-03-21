@@ -85,6 +85,9 @@ const sketch = (p5) => {
         Map.draw(p5)
         movePlayer()
         drawPlayer()
+        if (movingTo == null) {
+            Map.exploreAdjacentTiles(playerTile)
+        }
     }
 
     // click tiles to set them as waypoints
