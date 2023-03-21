@@ -5,8 +5,8 @@ const HEXAGON_CONSTANT = Math.sqrt(3) / 2
 
 const SELECTED_COLOR = 'blue';
 const WAYPOINT_COLOR = 'green';
-const DEFAULT_COLOR = 'white'
-const HIDDEN_COLOR = '#333'
+const DEFAULT_COLOR = '#444'
+const HIDDEN_COLOR = 'black'
 
 // draw a hexagon to the p5 context at x, y, with size s and given color
 const draw_hexagon = (p5, transX, transY, s, color) => {
@@ -71,6 +71,9 @@ export class Tile {
     }
     if (this.selected) {
       color = SELECTED_COLOR
+    }
+    if (this.event) {
+      color = 'purple';
     }
 
     draw_hexagon(p5, this.px, this.py, tile_size_px / 2.1, color)

@@ -27,6 +27,8 @@ Map.generateTiles = () => {
 
     //select a handfull of random tiles, give them events
     Map.tiles[0].event = events.asteroids;
+    Map.tiles[5].event = events.signal;
+    Map.tiles[15].event = events.pirates;
 }
 
 Map.draw = (p5) => {
