@@ -22,6 +22,16 @@ body {
   transition: opacity 1s ease-out;
 }
 
+#signal {
+  font-family: 'Courier New',
+    monospace;
+  word-break: break-all;
+}
+
+#incoming {
+  text-align: center;
+}
+
 .show {
   border: 1px solid red;
   opacity: 1 !important;

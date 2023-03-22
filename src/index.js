@@ -3,7 +3,7 @@ import p5 from 'p5'
 import { Tile } from './js/tile';
 import { Map } from './js/map';
 import { events } from './js/events';
-import { renderSignals } from './js/signals';
+import { animateSignal, renderSignals } from './js/signals';
 import '@/styles/index.scss';
 
 const sketch = (p5) => {
@@ -61,10 +61,10 @@ const sketch = (p5) => {
 
     const renderResources = () => {
         let resourceDiv = document.getElementById("resources");
-        resourceDiv.querySelector(".energy").innerHTML = 'energy: ' + energy; 
-        resourceDiv.querySelector(".oxygen").innerHTML = 'oxygen: ' + oxygen + '%'; 
-        resourceDiv.querySelector(".health").innerHTML = 'health: ' + health; 
-        resourceDiv.querySelector(".morale").innerHTML = 'morale: ' + morale; 
+        resourceDiv.querySelector(".energy").innerHTML = 'energy: ' + energy;
+        resourceDiv.querySelector(".oxygen").innerHTML = 'oxygen: ' + oxygen + '%';
+        resourceDiv.querySelector(".health").innerHTML = 'health: ' + health;
+        resourceDiv.querySelector(".morale").innerHTML = 'morale: ' + morale;
     }
 
     const renderEvent = () => {
@@ -74,15 +74,15 @@ const sketch = (p5) => {
         document.getElementById("e-text").innerHTML = e.text;
         if (e.energy) {
             changeEnergy(e.energy)
-            effects += `Energy: ${e.energy} ` 
+            effects += `Energy: ${e.energy} `
         }
         if (e.health) {
             health = health + e.health
-            effects += `Health: ${e.health} ` 
+            effects += `Health: ${e.health} `
         }
         if (e.morale) {
             morale = morale + e.morale
-            effects += `Morale: ${e.morale} ` 
+            effects += `Morale: ${e.morale} `
         }
         renderResources()
         document.getElementById("e-effect").innerHTML = effects;
@@ -189,3 +189,5 @@ const sketch = (p5) => {
 }
 
 new p5(sketch, document.getElementById('nav'));
+
+setInterval(animateSignal, 80)
