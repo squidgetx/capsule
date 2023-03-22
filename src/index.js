@@ -36,6 +36,10 @@ const sketch = (p5) => {
             t.path = null
             t.waypoint = null
         }
+
+        const signals = Map.getSignals(playerTile)
+        renderSignals(signals)
+
         return
     }
 
@@ -107,8 +111,6 @@ const sketch = (p5) => {
             if (movingTo == undefined) {
                 stopMoving()
             }
-            const signals = Map.getSignals(playerTile)
-            renderSignals(signals)
             let playerCoord = Tile.pxToCoord({ x: playerX, y: playerY })
             playerTile = Map.getTile(playerCoord)
             if (playerTile.event) {
