@@ -1,16 +1,19 @@
 @font-face {
   font-family: 'Inter';
   src: url('../fonts/Inter.ttf');
+
 }
 
 body {
+  font-family: 'Courier New',
+    monospace;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
 }
 
-#event, #signal {
+#event, #signal  {
   margin: 1em;
   padding: .5em;
   text-align: left;
@@ -22,9 +25,22 @@ body {
   transition: opacity 1s ease-out;
 }
 
+#nav-actions {
+  opacity: 0;
+}
+
+.btn {
+  display: block ;
+  padding: 0.5em;
+  background-color: grey;
+  &:hover {
+    cursor: pointer;
+    background-color: #333;
+  }
+}
+
 #signal {
-  font-family: 'Courier New',
-    monospace;
+
   word-break: break-all;
 }
 

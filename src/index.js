@@ -5,6 +5,7 @@ import { Map } from './js/map';
 import { events } from './js/events';
 import { animateSignal, renderSignals } from './js/signals';
 import '@/styles/index.scss';
+import { axialDist } from './js/hex';
 
 const sketch = (p5) => {
 
@@ -17,6 +18,7 @@ const sketch = (p5) => {
     // control variables for animating movement
     let waypoints = []
     let waypointPath = [];
+    let hypoNavPath = [];
     let animating = false
     let movingTo = null
 
@@ -41,6 +43,23 @@ const sketch = (p5) => {
         renderSignals(signals)
 
         return
+    }
+
+    const renderNavMenu = () => {
+        const navInfo = document.getElementById('nav-info')
+        const destination = Map.tiles.find(t => t.selected) || hypoNavPath.slice(-1)[0]
+        const energyCost = hypoNavPath.length
+        if (destination) {
+            navInfo.innerHTML = `<p>${destination.name}</p>`
+            if (energyCost) {
+                navInfo.innerHTML += `<p>Energy cost: ${energyCost}</p>`
+            }
+            if (waypoints.length > 0) {
+                document.getElementById('nav-actions').classList.add('show')
+            } else {
+                document.getElementById('nav-actions').classList.remove('show')
+            }
+        }
     }
 
     // player resources
@@ -94,6 +113,7 @@ const sketch = (p5) => {
         renderResources()
         document.getElementById("e-effect").innerHTML = effects;
     }
+
     // move the player to the movingTo destination
     // if we are there already, get the next tile from the queue (waypointPath)
     // if the queue is empty, we have arrived at the final destination
@@ -142,6 +162,15 @@ const sketch = (p5) => {
         playerX = playerTile.px
         playerY = playerTile.py
 
+
+        // nav menu buttons
+        document.getElementById('nav-go').addEventListener('click', () => {
+            movingTo = waypointPath.shift()
+        })
+        document.getElementById('nav-cancel').addEventListener('click', () => {
+            stopMoving()
+        })
+
         //oxygen timer
         setInterval(changeOxygen, 2000)
     }
@@ -160,9 +189,10 @@ const sketch = (p5) => {
             if (hoveredTile) {
                 waypoint_copy.push(hoveredTile)
             }
-            Map.markWaypointPath(p5, playerTile, waypoint_copy)
+            hypoNavPath = Map.markWaypointPath(p5, playerTile, waypoint_copy)
         }
         renderResources()
+        renderNavMenu()
     }
 
     // click tiles to set them as waypoints

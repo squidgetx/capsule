@@ -44,6 +44,7 @@ export class Tile {
     this.q = axial.q
     this.r = axial.r
     this.s = -this.q - this.r
+    this.name = `Sector ${this.q + 10}${this.r + 20}`
     this.explored = false
     this.selected = false
   }

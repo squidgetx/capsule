@@ -112,6 +112,7 @@ Map.markWaypointPath = (p5, start, waypoints) => {
     }
     if (path[0] == start)
         return path.slice(1)
+    return path
 }
 
 Map.exploreAdjacentTiles = (tile) => {
