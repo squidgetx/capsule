@@ -39,6 +39,54 @@ const sketch = (p5) => {
         return
     }
 
+    // player resources
+    let energy = 20;
+    let oxygen = 100;
+    let health = 5;
+    let morale = 5;
+
+    //resource functions
+    const changeEnergy = (a) => {
+        energy = energy + a;
+    }
+
+    const changeOxygen = (a) => {
+        //want to be able to add oxygen
+        //want to be able to pause oxygen
+        // right now it's called every 2 seconds in setup which might not be ideal
+        if (oxygen > 0) {
+            oxygen--;
+        }
+    }
+
+    const renderResources = () => {
+        let resourceDiv = document.getElementById("resources");
+        resourceDiv.querySelector(".energy").innerHTML = 'energy: ' + energy; 
+        resourceDiv.querySelector(".oxygen").innerHTML = 'oxygen: ' + oxygen + '%'; 
+        resourceDiv.querySelector(".health").innerHTML = 'health: ' + health; 
+        resourceDiv.querySelector(".morale").innerHTML = 'morale: ' + morale; 
+    }
+
+    const renderEvent = () => {
+        let e = playerTile.event
+        let effects = '';
+        document.getElementById("e-title").innerHTML = e.title;
+        document.getElementById("e-text").innerHTML = e.text;
+        if (e.energy) {
+            changeEnergy(e.energy)
+            effects += `Energy: ${e.energy} ` 
+        }
+        if (e.health) {
+            health = health + e.health
+            effects += `Health: ${e.health} ` 
+        }
+        if (e.morale) {
+            morale = morale + e.morale
+            effects += `Morale: ${e.morale} ` 
+        }
+        renderResources()
+        document.getElementById("e-effect").innerHTML = effects;
+    }
     // move the player to the movingTo destination
     // if we are there already, get the next tile from the queue (waypointPath)
     // if the queue is empty, we have arrived at the final destination
@@ -52,6 +100,8 @@ const sketch = (p5) => {
         const dY = movingTo.py - playerY
         if (Math.sqrt(dX * dX + dY * dY) < 1) {
             // we arrived at the next tile, now start moving to the next one
+            changeEnergy(-1)
+            renderResources();
             movingTo = waypointPath.shift()
             // stop moving if there are no more places to go next
             if (movingTo == undefined) {
@@ -64,9 +114,7 @@ const sketch = (p5) => {
             if (playerTile.event) {
                 //display event stuff
                 document.getElementById("event").classList.add('show');
-                document.getElementById("e-title").innerHTML = playerTile.event.title;
-                document.getElementById("e-text").innerHTML = playerTile.event.text;
-                document.getElementById("e-result").innerHTML = playerTile.event.effect;
+                renderEvent();
                 stopMoving()
             } else {
                 document.getElementById("event").classList.remove('show')
@@ -88,6 +136,9 @@ const sketch = (p5) => {
         playerTile = Map.tiles[7]
         playerX = playerTile.px
         playerY = playerTile.py
+
+        //oxygen timer
+        setInterval(changeOxygen, 2000)
     }
 
     p5.draw = () => {
@@ -106,6 +157,7 @@ const sketch = (p5) => {
             }
             Map.markWaypointPath(p5, playerTile, waypoint_copy)
         }
+        renderResources()
     }
 
     // click tiles to set them as waypoints

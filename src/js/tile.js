@@ -71,7 +71,7 @@ export class Tile {
       color = VISIBLE_COLOR
     }
 
-    if (this.event || this.signal) {
+    if (this.event && this.visible || this.signal && this.visible) {
       color = 'purple';
     }
     if (this.path) {

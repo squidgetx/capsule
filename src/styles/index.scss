@@ -32,6 +32,23 @@ body {
   padding: .5em;
 }
 
+#resources {
+  display: flex;
+  gap: 5em;
+  color:white;
+  #capsule, #player {
+    display: flex;
+    gap: 1em;
+    padding: 0 1em 0 1em;
+  }
+  #capsule {
+    background-color: red;
+  }
+  #player {
+    background-color: blue;
+  }
+}
+
 
 @import 'variables';
 @import 'scaffolding';
