@@ -88,6 +88,9 @@ const sketch = (p5) => {
             morale = morale + e.morale
             effects += `Morale: ${e.morale} `
         }
+        if (e.consumable) {
+            playerTile.event = null
+        }
         renderResources()
         document.getElementById("e-effect").innerHTML = effects;
     }

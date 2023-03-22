@@ -1,5 +1,5 @@
 export const events = {
-   asteroids: {
+    asteroids: {
         "title": "The Tabrini Asteroids",
         "text": "Your Capsule does its best to navigate through the dense field of obliterated rocks and metals, but you are no pilot. You brush against an asteroid and the entire cabin flickers.",
         "energy": -1,
@@ -14,6 +14,7 @@ export const events = {
         "title": "Amytis of Babylon",
         "text": "A ship appears on your radar, but it's a fearsome thing made of guns and steel. You send a plea for rescue and recieve a message. 'Can't pick up strangers, but dropped this for you. Godspeed.' ",
         "energy": +1,
-        "morale": -1
+        "morale": -1,
+        "consumable": true
     }
 }
