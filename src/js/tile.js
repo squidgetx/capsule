@@ -3,7 +3,7 @@ import { coordToAxial } from "./hex";
 export const tile_size_px = 60;
 const HEXAGON_CONSTANT = Math.sqrt(3) / 2
 
-const SELECTED_COLOR = 'blue';
+const SELECTED_COLOR = 'red';
 const WAYPOINT_COLOR = 'green';
 const EXPLORED_COLOR = '#444'
 const VISIBLE_COLOR = '#aaa'

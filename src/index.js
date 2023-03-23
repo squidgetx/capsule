@@ -114,6 +114,10 @@ const sketch = (p5) => {
         document.getElementById("e-effect").innerHTML = effects;
     }
 
+    document.getElementById("e-close").addEventListener("click", () => {
+        document.getElementById("event").classList.remove('show')
+    })
+
     // move the player to the movingTo destination
     // if we are there already, get the next tile from the queue (waypointPath)
     // if the queue is empty, we have arrived at the final destination
@@ -176,7 +180,7 @@ const sketch = (p5) => {
     }
 
     p5.draw = () => {
-        p5.background('white')
+        p5.background('#011F1D')
         Map.draw(p5)
         movePlayer()
         drawPlayer()
