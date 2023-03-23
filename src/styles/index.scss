@@ -1,47 +1,86 @@
-@font-face {
-  font-family: 'Inter';
-  src: url('../fonts/Inter.ttf');
 
-}
+@import 'variables';
+@import 'scaffolding';
 
-body {
-  font-family: 'Courier New',
-    monospace;
+@mixin flexCenter($direction) {
   display: flex;
   justify-content: center;
-  align-items: center;
-  flex-direction: column;
+  flex-direction: $direction;
 }
 
-#event, #signal  {
+@mixin message() {
   margin: 1em;
   padding: .5em;
   text-align: left;
-  border: 1px solid red;
+  border: 1px solid $secondary-light;
   opacity: 0;
-  width: 30vw;
-  height: 25vh;
   display: inline-block;
   transition: opacity 1s ease-out;
 }
 
-#nav-actions {
-  opacity: 0;
+@mixin caps() {
+  text-transform: uppercase;
+  letter-spacing: .1rem;
 }
 
-.btn {
-  display: block ;
-  padding: 0.5em;
-  background-color: grey;
-  &:hover {
-    cursor: pointer;
-    background-color: #333;
+body {
+  @include flexCenter(column);
+  font-family: $font-family;
+  background-color: $secondary-dark;
+}
+
+//Navigation CSS
+.row {
+  @include flexCenter(row);
+  gap: 1em;
+  padding: 1em;
+}
+
+#signal  {
+  @include message();
+  width: 30vw;
+  height: 25vh;
+  word-break: break-all;
+  #incoming {
+    color: $secondary-light;
   }
 }
 
-#signal {
+#nav-info {
+  @include caps();
+}
 
-  word-break: break-all;
+#nav-actions {
+  @include flexCenter(column);
+  opacity: 0;
+  width: 10em;
+  border: 0;
+  button {
+    flex: 1;
+  }
+}
+
+button {
+  font-family: $font-family;
+  display: block ;
+  padding: 0.5em;
+  background-color: $primary-dark;
+  color: $font-color;
+  border: none;
+  &:hover {
+    cursor: pointer;
+    background-color: $primary;
+  }
+}
+
+.sub-btn {
+  background-color: $secondary-dark;
+  color: $secondary;
+  &:hover {
+    cursor: pointer;
+    color: $secondary-light;
+    background-color: $secondary-dark;
+  }
 }
 
 #incoming {
@@ -49,32 +88,57 @@ body {
 }
 
 .show {
-  border: 1px solid red;
+  border: 1px solid $secondary-light;
+  background-color: $secondary-dark;
+  color: $secondary;
   opacity: 1 !important;
 }
 
-#event small {
-  color: red;
-  padding: .5em;
-}
+#event {
+  @include message();
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  width: 30vw;
+  color: $font-color;
+  padding: 1em 1em 2em 1em;
+  #e-title {
+    @include caps();
+  }
+  #e-effect {
+    @include flexCenter(column);
+    // background-color: $primary;
+    color: $secondary-light;
+    padding: .5em;
+    box-sizing: content;
+  }
+  .align-right {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+  }
+} 
 
 #resources {
-  display: flex;
-  gap: 5em;
-  color:white;
+  @include flexCenter(column);
+  @include caps();
+  gap: 1em;
+  color: $font-color;
+  min-width: 10em;
   #capsule, #player {
-    display: flex;
-    gap: 1em;
+    @include flexCenter(column);
+    align-items: baseline;
     padding: 0 1em 0 1em;
   }
   #capsule {
-    background-color: red;
+    background-color: $primary-dark;
   }
   #player {
-    background-color: blue;
+    background-color: $primary-dark;
   }
 }
 
 
-@import 'variables';
-@import 'scaffolding';
+

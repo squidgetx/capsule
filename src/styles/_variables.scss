@@ -1,5 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap');
+
 $font-size: 1rem;
-$font-family: 'Inter', sans-serif;
+$font-family: 'IBM Plex Mono', Courier, monospace;
+
+//colors
 $background-color: #121212;
-$font-color: #dae0e0;
-$page-width: 650px;
+$font-color: #F3F1EC;
+
+$primary: #BF436C;
+$primary-dark: #921B43;
+
+$secondary: #52AD93;
+$secondary-dark: #011F1D;
+$secondary-light: #6CFFD5;

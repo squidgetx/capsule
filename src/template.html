@@ -9,12 +9,17 @@
   </head>
 
   <body>
-
-    <div id="event">
-      <h3 id="e-title"></h3>
-      <p id="e-text"></p>
-      <small id="e-effect"></small>
+    <div class="row">
+    <div id="nav"></div>
+    <div id="nav-menu">
+      <div id="nav-info"></div>
+      <div id="nav-actions">
+        <button id="nav-go">Go!</button>
+        <button id="nav-cancel" class="sub-btn">Cancel</button>
+      </div>
     </div>
+  </div>
+  <div class="row">
     <div id="resources">
       <div id="capsule">
       <p class="energy">energy: 20</p>
@@ -25,20 +30,21 @@
         <p class="morale">morale: 5</p>
       </div>
     </div>
-    <div id="nav"></div>
-    <div id="nav-menu">
-      <div id="nav-info"></div>
-      <div id="nav-actions">
-        <span class='btn' id="nav-go">Go!</span>
-        <span class='btn' id="nav-cancel">Cancel</span>
-      </div>
-    </div>
     <div id="signal">
       <p id="incoming">** INCOMING TRANSMISSION **</p>
       <p class="text"></p>
     </div>
+  </div>
+    <div id="event">
+      <h3 id="e-title">hii</h3>
+      <p id="e-text"></p>
+      <p id="e-effect"></p>
+      <div class="align-right">
+      <button class="sub-btn">close</button>
+    </div>
+    </div>
 
 
-    <p>click tiles to set waypoints, press enter to execute your path</p>
+
   </body>
 </html>
