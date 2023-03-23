@@ -92,6 +92,7 @@ button {
   background-color: $secondary-dark;
   color: $secondary;
   opacity: 1 !important;
+  z-index: 1;
 }
 
 #event {
@@ -120,6 +121,7 @@ button {
     width: 100%;
     justify-content: flex-end;
   }
+ 
 } 
 
 #resources {
@@ -153,6 +155,7 @@ button {
   height: 60vh;
   color: $font-color;
   border: 0;
+  z-index: -1;
   h3, p {
     max-width: 550px
   }

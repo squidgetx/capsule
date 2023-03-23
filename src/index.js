@@ -119,10 +119,7 @@ const sketch = (p5) => {
         document.getElementById("e-effect").innerHTML = effects;
     }
 
-    //close event
-    document.getElementById("e-close").addEventListener("click", () => {
-        document.getElementById("event").classList.remove('show')
-    })
+
 
     function renderEnd(a) {
         document.getElementById("end").classList.add("show");
@@ -193,6 +190,11 @@ const sketch = (p5) => {
         })
         document.getElementById('nav-cancel').addEventListener('click', () => {
             stopMoving()
+        })
+
+        // event buttons
+        document.getElementById("e-close").addEventListener("click", () => {
+            document.getElementById("event").classList.remove('show')
         })
 
         //oxygen timer
