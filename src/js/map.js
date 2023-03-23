@@ -4,7 +4,7 @@ import { events } from './events';
 import { clamp } from "./util"
 
 export const Map = {
-    width: 6,
+    width: 8,
     height: 6,
     tiles: [],
 }

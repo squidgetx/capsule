@@ -6,7 +6,7 @@ import { events } from './js/events';
 import { animateSignal, renderSignals } from './js/signals';
 import '@/styles/index.scss';
 import { axialDist } from './js/hex';
-
+import { endings } from './js/end';
 const sketch = (p5) => {
 
     const canvas_width = 600;
@@ -71,6 +71,9 @@ const sketch = (p5) => {
     //resource functions
     const changeEnergy = (a) => {
         energy = energy + a;
+        if (energy === 0) {
+            renderEnd('energy')
+        }
     }
 
     const changeOxygen = (a) => {
@@ -79,6 +82,8 @@ const sketch = (p5) => {
         // right now it's called every 2 seconds in setup which might not be ideal
         if (oxygen > 0) {
             oxygen--;
+        } else {
+            renderEnd('oxygen');
         }
     }
 
@@ -114,10 +119,25 @@ const sketch = (p5) => {
         document.getElementById("e-effect").innerHTML = effects;
     }
 
+    //close event
     document.getElementById("e-close").addEventListener("click", () => {
         document.getElementById("event").classList.remove('show')
     })
 
+    function renderEnd(a) {
+        document.getElementById("end").classList.add("show");
+        //eventually pick a random ending
+        let endtitle = document.getElementById("end-title");
+        let endtext = document.getElementById("end-text");
+        if (a == "oxygen") {
+            endtitle.innerHTML = endings.oxygen.events[0].title;
+            endtext.innerHTML = endings.oxygen.events[0].text;
+        }
+        if (a == "energy") {
+            endtitle.innerHTML = endings.energy.events[0].title;
+            endtext.innerHTML = endings.energy.events[0].text;
+        }
+    }
     // move the player to the movingTo destination
     // if we are there already, get the next tile from the queue (waypointPath)
     // if the queue is empty, we have arrived at the final destination
