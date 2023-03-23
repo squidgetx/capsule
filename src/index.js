@@ -77,7 +77,7 @@ const sketch = (p5) => {
     //resource functions
     const changeEnergy = (a) => {
         energy = energy + a;
-        if (energy === 0) {
+        if (energy <= 0) {
             renderEnd('energy')
         }
     }
