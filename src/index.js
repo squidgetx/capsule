@@ -46,11 +46,14 @@ const sketch = (p5) => {
     }
 
     const renderNavMenu = () => {
+        document.getElementById('current-sector').innerHTML = `${playerTile.name}`
+
         const navInfo = document.getElementById('nav-info')
-        const destination = Map.tiles.find(t => t.selected) || hypoNavPath.slice(-1)[0]
+        const destination = Map.tiles.find(t => t.selected) || waypoints.slice(-1)[0]
         const energyCost = hypoNavPath.length
         if (destination) {
-            navInfo.innerHTML = `<p>${destination.name}</p>`
+            const name = destination.explored ? destination.name : "???"
+            navInfo.innerHTML = `<p>${name}</p>`
             if (energyCost) {
                 navInfo.innerHTML += `<p>Energy cost: ${energyCost}</p>`
             }
@@ -59,6 +62,9 @@ const sketch = (p5) => {
             } else {
                 document.getElementById('nav-actions').classList.remove('show')
             }
+        } else {
+            navInfo.innerHTML = ''
+            document.getElementById('nav-actions').classList.remove('show')
         }
     }
 

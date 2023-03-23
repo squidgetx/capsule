@@ -9,8 +9,7 @@
 }
 
 @mixin message() {
-  margin: 1em;
-  padding: .5em;
+ 
   text-align: left;
   opacity: 0;
   display: inline-block;
@@ -36,14 +35,19 @@ body {
 }
 
 #signalWrapper {
+  margin: 1em;
+  padding: .5em;
+  width: 30vw;
+  height: 25vh;
   border: 1px solid $secondary-light;
 }
 
 #signal  {
   @include message();
   margin: 0;
-  width: 30vw;
-  height: 25vh;
+  padding-left: 0.5em;
+  pading-right: 0.5em;
+ 
   word-break: break-all;
   #incoming {
     color: $secondary-light;
@@ -57,9 +61,14 @@ body {
   }
 }
 
+#current-sector {
+  @include caps();
+  text-align: left;
+  padding: 0.5em;
+}
 
 
-#nav-info {
+#nav-info{
   @include caps();
 }
 
@@ -115,6 +124,8 @@ button {
   left: 0;
   right: 0;
   width: 30vw;
+  margin: 1em;
+  padding: .5em;
   min-width: 400px;
   color: $font-color;
   padding: 1em 1em 2em 1em;
