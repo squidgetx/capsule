@@ -19,14 +19,6 @@ Map.getTile = (coord) => {
     return Map.tiles[coord.y * Map.width + coord.x]
 }
 
-// Always returns a tile - if the coordinates are out of bounds attempts
-// to re-place the tile in bounds
-Map.getTileBounded = (ax) => {
-    const q = clamp(ax.q, 0, Map.height)
-    const r = clamp(ax.r, 0, Map.width)
-    return Map.tiles[y * Map.width + x]
-}
-
 Map.generateTiles = () => {
     for (let j = 0; j < Map.height; j++) {
         for (let i = 0; i < Map.width; i++) {

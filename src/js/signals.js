@@ -1,4 +1,4 @@
-import { pickRandom, setCharAt } from "./util"
+import { pickRandom, setCharAt, setupTextAnimation } from "./util"
 
 export const renderSignals = (signals) => {
     for (const signal of signals) {
@@ -40,25 +40,14 @@ const renderSignal = (signal) => {
     const signalDiv = document.getElementById("signal")
     signalDiv.classList.add('show');
     let signalText = scrambleText(signal.text, signal.distance)
-    signalDiv.querySelector('.text').setAttribute('data', signalText)
-    signalDiv.querySelector('.text').setAttribute('cursor', 0)
+    setupTextAnimation(
+        document.getElementById('signal-text'),
+        signalText,
+        {
+            interval: 80,
+            pageSize: 200,
+            loop: true,
+        }
+    )
 }
 
-export const animateSignal = () => {
-    const signalTextDiv = document.getElementById('signal').querySelector('.text')
-    const text = signalTextDiv.getAttribute('data')
-    let cursor = signalTextDiv.getAttribute('cursor')
-    if (text == null || cursor == null) {
-        return
-    }
-    if (cursor > text.length) {
-        cursor = 0
-    }
-    let offset = 0
-    const pageSize = 200
-    if (cursor > pageSize) {
-        offset = Math.floor(cursor / pageSize) * pageSize
-    }
-    signalTextDiv.innerHTML = text.slice(offset, cursor) + "\u275A"
-    signalTextDiv.setAttribute('cursor', parseInt(cursor) + 1)
-}

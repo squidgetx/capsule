@@ -3,10 +3,11 @@ import p5 from 'p5'
 import { Tile } from './js/tile';
 import { Map } from './js/map';
 import { events } from './js/events';
-import { animateSignal, renderSignals } from './js/signals';
+import { renderSignals } from './js/signals';
 import '@/styles/index.scss';
 import { axialDist } from './js/hex';
 import { endings } from './js/end';
+import { animateTextFrame, setupTextAnimation } from './js/util';
 const sketch = (p5) => {
 
     const canvas_width = 600;
@@ -101,31 +102,46 @@ const sketch = (p5) => {
         resourceDiv.querySelector(".morale").innerHTML = 'morale: ' + morale;
     }
 
-    const renderEvent = () => {
-        let e = playerTile.event
-        let effects = '';
-        document.getElementById("e-title").innerHTML = e.title;
-        document.getElementById("e-text").innerHTML = e.text;
-        if (e.energy) {
-            changeEnergy(e.energy)
-            effects += `Energy: ${e.energy} `
+
+    // Render the event and call the callback arg when the event is closed.
+    const renderEvent = (e) => {
+        document.getElementById("event-title").innerHTML = e.title;
+        document.getElementById("event-close").disabled = true;
+        document.getElementById("event-effect").innerHTML = '';
+
+        const applyEventEffect = (e) => {
+            let effects = ''
+            if (e.energy) {
+                changeEnergy(e.energy)
+                effects += `Energy: ${e.energy} `
+            }
+            if (e.health) {
+                health = health + e.health
+                effects += `Health: ${e.health} `
+            }
+            if (e.morale) {
+                morale = morale + e.morale
+                effects += `Morale: ${e.morale} `
+            }
+            if (e.consumable) {
+                playerTile.event = null
+            }
+            renderResources()
+            return effects
         }
-        if (e.health) {
-            health = health + e.health
-            effects += `Health: ${e.health} `
+        const renderEventEffect = (e) => {
+            let effects = applyEventEffect(e)
+            document.getElementById("event-effect").innerHTML = effects;
+            document.getElementById("event-close").disabled = false;
         }
-        if (e.morale) {
-            morale = morale + e.morale
-            effects += `Morale: ${e.morale} `
-        }
-        if (e.consumable) {
-            playerTile.event = null
-        }
-        renderResources()
-        document.getElementById("e-effect").innerHTML = effects;
+        setupTextAnimation(
+            document.getElementById('event-text'),
+            e.text,
+            {
+                callback: () => renderEventEffect(e)
+            }
+        );
     }
-
-
 
     function renderEnd(a) {
         document.getElementById("end").classList.add("show");
@@ -166,7 +182,7 @@ const sketch = (p5) => {
             if (playerTile.event) {
                 //display event stuff
                 document.getElementById("event").classList.add('show');
-                renderEvent();
+                renderEvent(playerTile.event)
                 stopMoving()
             } else {
                 document.getElementById("event").classList.remove('show')
@@ -199,9 +215,10 @@ const sketch = (p5) => {
         })
 
         // event buttons
-        document.getElementById("e-close").addEventListener("click", () => {
+        document.getElementById("event-close").addEventListener("click", () => {
             document.getElementById("event").classList.remove('show')
         })
+
 
         //oxygen timer
         setInterval(changeOxygen, 2000)
@@ -256,5 +273,3 @@ const sketch = (p5) => {
 }
 
 new p5(sketch, document.getElementById('nav'));
-
-setInterval(animateSignal, 80)
