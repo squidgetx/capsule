@@ -9,7 +9,6 @@
 }
 
 @mixin message() {
- 
   text-align: left;
   opacity: 0;
   display: inline-block;
@@ -19,6 +18,20 @@
 @mixin caps() {
   text-transform: uppercase;
   letter-spacing: .1rem;
+}
+
+@mixin modal() {
+  position: absolute;
+  margin: 1em auto 1em;
+  left: 0;
+  right: 0;
+  padding: .5em;
+  min-width: 400px;
+  color: $font-color;
+  padding: 1em 1em 2em 1em;
+  border: 1px solid $secondary-light;
+  overflow: clip;
+  z-index: -1;
 }
 
 body {
@@ -82,17 +95,36 @@ body {
   padding: 0.5em;
 }
 
-#nav {
+#mini-nav {
+  border: 5px solid $secondary-light;
+  border-radius: 50%;
+  overflow: clip;
+  height: 150px;
+  width: 150px;
+}
+
+#navWrapper {
+  @include modal();
+  width: 45vw;
+  opacity: 0;
+  display: inline-block;
+  border: 1px solid $secondary-light;
 }
 
 
-#nav-info{
+#nav-info-wrapper {
   @include caps();
+  text-align: left;
+  border-top: 1px solid $secondary-light;
+  display: flex;
+  height: 10vh;
+  padding-left: 1em;
 }
+
 
 #nav-actions {
   @include flexCenter(column);
-  opacity: 0;
+  margin-left: auto;
   width: 10em;
   border: 0;
   button {
@@ -110,6 +142,10 @@ button {
   &:hover {
     cursor: pointer;
     background-color: $primary;
+  }
+  &disabled {
+    background-color: $primary-dark;
+    color: $secondary-dark
   }
 }
 
@@ -141,16 +177,9 @@ button {
 
 #event {
   @include message();
-  position: absolute;
-  margin: 1em auto 1em;
-  left: 0;
-  right: 0;
+  @include modal();
   width: 30vw;
-  padding: .5em;
-  min-width: 400px;
-  color: $font-color;
-  padding: 1em 1em 2em 1em;
-  border: 1px solid $secondary-light;
+  
   #event-title {
     @include caps();
   }

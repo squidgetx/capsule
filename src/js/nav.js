@@ -76,9 +76,9 @@ export const getNav = (Player, Map, canvasWidth, canvasHeight, zoomLevel, follow
                 navInfo.innerHTML += `<p>Energy cost: ${energyCost}</p>`
             }
             if (waypoints.length > 0) {
-                document.getElementById('nav-actions').classList.add('show')
+                document.getElementById('nav-go').disabled = false;
             } else {
-                document.getElementById('nav-actions').classList.remove('show')
+                document.getElementById('nav-go').disabled = true;
             }
         } else {
             navInfo.innerHTML = ''
@@ -126,65 +126,63 @@ export const getNav = (Player, Map, canvasWidth, canvasHeight, zoomLevel, follow
             }
         }
 
-        if (allowInteract) {
-            let dragging = false
-            let dragStartX, dragStartY
+        let dragging = false
+        let dragStartX, dragStartY
 
-            const mouseActive = p5 =>
-                (p5.mouseX > 0 && p5.mouseY > 0 && p5.mouseX < canvasWidth && p5.mouseY < canvasHeight)
+        const mouseActive = p5 =>
+            allowInteract && (p5.mouseX > 0 && p5.mouseY > 0 && p5.mouseX < canvasWidth && p5.mouseY < canvasHeight)
 
-            p5.mousePressed = (evt) => {
-                if (mouseActive(p5)) {
-                    dragStartX = p5.mouseX
-                    dragStartY = p5.mouseY
-                }
+        p5.mousePressed = (evt) => {
+            if (mouseActive(p5)) {
+                dragStartX = p5.mouseX
+                dragStartY = p5.mouseY
             }
+        }
 
-            p5.mouseDragged = () => {
-                if (mouseActive(p5)) {
-                    dragging = true
-                    let dx = p5.mouseX - dragStartX
-                    let dy = p5.mouseY - dragStartY
-                    camera.x -= dx / camera.zoom
-                    camera.y -= dy / camera.zoom
-                    dragStartX = p5.mouseX
-                    dragStartY = p5.mouseY
-                }
+        p5.mouseDragged = () => {
+            if (mouseActive(p5)) {
+                dragging = true
+                let dx = p5.mouseX - dragStartX
+                let dy = p5.mouseY - dragStartY
+                camera.x -= dx / camera.zoom
+                camera.y -= dy / camera.zoom
+                dragStartX = p5.mouseX
+                dragStartY = p5.mouseY
             }
+        }
 
-            p5.mouseReleased = (evt) => {
-                if (dragging == false && Player.movingTo == null) {
-                    if (highlightedTile) {
-                        const indexClicked = waypoints.indexOf(highlightedTile)
-                        if (indexClicked != -1) {
-                            waypoints = waypoints.splice(indexClicked, -1)
-                            highlightedTile.waypoint = false
-                        } else {
-                            waypoints.push(highlightedTile)
-                            highlightedTile.waypoint = true
-                        }
-                        waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
+        p5.mouseReleased = (evt) => {
+            if (dragging == false && Player.movingTo == null) {
+                if (highlightedTile) {
+                    const indexClicked = waypoints.indexOf(highlightedTile)
+                    if (indexClicked != -1) {
+                        waypoints = waypoints.splice(indexClicked, -1)
+                        highlightedTile.waypoint = false
+                    } else {
+                        waypoints.push(highlightedTile)
+                        highlightedTile.waypoint = true
                     }
+                    waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
                 }
-                dragging = false;
             }
+            dragging = false;
+        }
 
-            p5.mouseWheel = (evt) => {
-                if (mouseActive(p5)) {
-                    const z1 = camera.zoom
-                    const z2 = clamp(camera.zoom + evt.delta / 100, 0.4, 4)
-                    // fx, fy are the map X/Y coordinates of the mouse pointer 
-                    // eg, if we are at zoom level 2 and the mouse is at 100,100 and camera(10,10)
-                    // then we are actually pointing at (60,60)
-                    const fx = (p5.mouseX / z1 + camera.x)
-                    const fy = (p5.mouseY / z1 + camera.y)
+        p5.mouseWheel = (evt) => {
+            if (mouseActive(p5)) {
+                const z1 = camera.zoom
+                const z2 = clamp(camera.zoom + evt.delta / 100, 0.4, 4)
+                // fx, fy are the map X/Y coordinates of the mouse pointer 
+                // eg, if we are at zoom level 2 and the mouse is at 100,100 and camera(10,10)
+                // then we are actually pointing at (60,60)
+                const fx = (p5.mouseX / z1 + camera.x)
+                const fy = (p5.mouseY / z1 + camera.y)
 
-                    const x2 = fx - (fx - camera.x) * z1 / z2
-                    const y2 = fy - (fy - camera.y) * z1 / z2
-                    camera.x = x2
-                    camera.y = y2
-                    camera.zoom = z2
-                }
+                const x2 = fx - (fx - camera.x) * z1 / z2
+                const y2 = fy - (fy - camera.y) * z1 / z2
+                camera.x = x2
+                camera.y = y2
+                camera.zoom = z2
             }
         }
     }
@@ -194,5 +192,8 @@ export const getNav = (Player, Map, canvasWidth, canvasHeight, zoomLevel, follow
         go: () => Player.movingTo = waypointPath.shift(),
         getDestination: () => highlightedTile,
         mainLoop,
+        hidden: true,
+        disableInteraction: () => { allowInteract = false },
+        enableInteraction: () => { allowInteract = true }
     }
 }

@@ -23,10 +23,10 @@ const setup = () => {
 
     Map.exploreAdjacentTiles(Player.currentTile)
 
-    Nav = getNav(Player, Map, 400, 300, 1, false, true)
-    const mininav = getNav(Player, Map, 150, 150, 2, true, false)
+    Nav = getNav(Player, Map, 600, 400, 1, false, false)
+    const mininav = getNav(Player, Map, 150, 150, 1.5, true, false)
 
-    new p5(Nav.sketch, document.getElementById('nav'));
+    let navSketch = new p5(Nav.sketch, document.getElementById('nav'));
     new p5(mininav.sketch, document.getElementById('mini-nav'));
     // event buttons
     document.getElementById("event-close").addEventListener("click", () => {
@@ -37,7 +37,24 @@ const setup = () => {
         Nav.go()
     })
     document.getElementById('nav-cancel').addEventListener('click', () => {
-        Nav.stop()
+        console.log('removing')
+        Nav.disableInteraction()
+        document.getElementById('navWrapper').classList.remove('show')
+        Nav.hidden = true
+    })
+    document.getElementById('mini-nav').addEventListener('click', () => {
+        if (!Nav.hidden) {
+            console.log('removing')
+            Nav.disableInteraction()
+            document.getElementById('navWrapper').classList.remove('show')
+            Nav.hidden = true
+        } else {
+            console.log('restoring')
+            document.getElementById('navWrapper').classList.add('show')
+            //document.getElementById('navWrapper').hidden = true
+            Nav.enableInteraction()
+            Nav.hidden = false
+        }
     })
 }
 
