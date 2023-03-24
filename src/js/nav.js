@@ -4,7 +4,7 @@ import '@/styles/index.scss';
 import { clamp } from './util';
 import { renderSignals } from './signals';
 
-export const getNav = (Player, Map, canvasWidth, canvasHeight, zoomLevel, followPlayer, allowInteract) => {
+export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLevel, followPlayer, allowInteract) => {
     const camera = { x: 0, y: 0, zoom: zoomLevel }
     const centerCamera = () => {
         camera.x = (Player.px * camera.zoom - canvasWidth / 2) / camera.zoom
@@ -17,6 +17,7 @@ export const getNav = (Player, Map, canvasWidth, canvasHeight, zoomLevel, follow
     let waypointPath = []
     let hypoNavPath = []
 
+    // All code to do with changing positions should go here
     const stopMoving = () => {
         Player.movingTo = null;
         waypointPath = [];
@@ -28,6 +29,7 @@ export const getNav = (Player, Map, canvasWidth, canvasHeight, zoomLevel, follow
         Map.exploreAdjacentTiles(Player.currentTile)
         const signals = Map.getSignals(Player.currentTile)
         renderSignals(signals)
+        Terminal.update(Player.currentTile)
         return
     }
 
@@ -56,8 +58,9 @@ export const getNav = (Player, Map, canvasWidth, canvasHeight, zoomLevel, follow
                 document.getElementById("event").classList.remove('show')
             }
         } else {
-            Player.px += dX / 8
-            Player.py += dY / 8
+            Player.px += dX / 32
+            Player.py += dY / 32
+
             let playerCoord = Tile.pxToCoord({ x: Player.px, y: Player.py })
             Player.currentTile = Map.getTile(playerCoord)
             Player.currentTile.path = null

@@ -28,7 +28,7 @@
   padding: .5em;
   min-width: 400px;
   color: $font-color;
-  padding: 1em 1em 2em 1em;
+  padding: 1em 1em 1em 1em;
   border: 1px solid $secondary-light;
   overflow: clip;
   z-index: -1;
@@ -44,7 +44,7 @@ body {
 
 #viewport {
   width: 60vw;
-  height: 20vh;
+  height: 25vh;
   margin-top: -3em;
   border: 1px solid $secondary-light;
   border-radius: 30px;
@@ -62,12 +62,43 @@ body {
   padding: 1em;
 }
 
-#signalWrapper {
+#terminalWrapper {
+  @include flexCenter(row);
   margin: 1em;
-  padding: .5em;
-  width: 30vw;
+  width: 40vw;
   height: 25vh;
   border: 1px solid $secondary-light;
+}
+
+#terminalMain {
+  @include flexCenter(column);
+  padding: 0.5em;
+  text-align: left;
+}
+
+#terminalHeader {
+  color: $secondary;
+  flex-shrink: 0;
+  padding-bottom: 0.5em;
+}
+
+#terminalControls {
+  @include flexCenter(column);
+  width: 6vw;
+  margin-left: auto;
+  border-left: 1px solid $secondary-light;
+  >button {
+    height: 100%;
+  }
+}
+
+#terminalText {
+  overflow-y: scroll;
+  flex: 1;
+  flex-shrink: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 #signal  {
@@ -95,16 +126,23 @@ body {
   padding: 0.5em;
 }
 
+#mini-nav-wrapper {
+  @include flexCenter(1)
+}
+
 #mini-nav {
+  display: block;
+  margin: auto;
   border: 5px solid $secondary-light;
   border-radius: 50%;
   overflow: clip;
-  height: 150px;
-  width: 150px;
+  height: 200px;
+  width: 200px;
 }
 
 #navWrapper {
   @include modal();
+  top: 0;
   width: 45vw;
   opacity: 0;
   display: inline-block;
@@ -119,6 +157,7 @@ body {
   display: flex;
   height: 10vh;
   padding-left: 1em;
+  padding-top: 1em;
 }
 
 
@@ -199,7 +238,7 @@ button {
 } 
 
 #resources {
-  @include flexCenter(column);
+  @include flexCenter(row);
   @include caps();
   gap: 1em;
   color: $font-color;

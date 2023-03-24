@@ -1,17 +1,15 @@
 import { pickRandom, setCharAt, setupTextAnimation } from "./util"
 
 export const renderSignals = (signals) => {
-    for (const signal of signals) {
-        renderSignal(signal)
-    }
-    if (signals.length == 0) {
-        const signalDiv = document.getElementById("signal")
-        signalDiv.classList.remove('show')
+    if (signals.length > 0) {
+        document.getElementById('termSignal').classList.remove('sub-btn')
+    } else {
+        document.getElementById('termSignal').classList.add('sub-btn')
     }
 }
 
 const scrambleText = (text, distance) => {
-    const scrambleWords = ["brzt", "...", "kssh", "\u275A", "?"]
+    const scrambleWords = ["brzt", "...", "kssh", "\u275A", "?", " "]
     const words = text.split(" ")
     if (distance == 0) {
         return text
@@ -36,18 +34,7 @@ const scrambleText = (text, distance) => {
     return newText
 }
 
-const renderSignal = (signal) => {
-    const signalDiv = document.getElementById("signal")
-    signalDiv.classList.add('show');
-    let signalText = scrambleText(signal.text, signal.distance)
-    setupTextAnimation(
-        document.getElementById('signal-text'),
-        signalText,
-        {
-            interval: 80,
-            pageSize: 200,
-            loop: true,
-        }
-    )
+export const getSignalText = (signal) => {
+    return scrambleText(signal.text, signal.distance)
 }
 

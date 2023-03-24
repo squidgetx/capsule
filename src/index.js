@@ -3,7 +3,7 @@ import p5 from 'p5'
 import { Tile, tile_size_px } from './js/tile';
 import { Map } from './js/map';
 import { renderEvent } from './js/events';
-import { renderSignals } from './js/signals';
+import { getSignalText, renderSignal } from './js/signals';
 import '@/styles/index.scss';
 import { axialDist } from './js/hex';
 import { endings } from './js/end';
@@ -11,9 +11,23 @@ import { clamp, setupTextAnimation } from './js/util';
 import { Player } from './js/Player';
 import { getNav } from './js/nav';
 
-let Nav;
+let Nav, Terminal;
 
 const setup = () => {
+
+    Terminal = {
+        update: (currentTile) => {
+            const termHeader = document.getElementById('terminalHeader')
+            termHeader.innerHTML = currentTile.name
+        },
+        appendMessage: (msg) => {
+            const termText = document.getElementById('terminalText')
+            const newMsg = document.createElement('p')
+            termText.prepend(newMsg)
+            setupTextAnimation(newMsg, msg, {})
+        }
+
+    }
 
     Map.generateTiles()
 
@@ -23,10 +37,10 @@ const setup = () => {
 
     Map.exploreAdjacentTiles(Player.currentTile)
 
-    Nav = getNav(Player, Map, 600, 400, 1, false, false)
-    const mininav = getNav(Player, Map, 150, 150, 1.5, true, false)
+    Nav = getNav(Player, Map, Terminal, 600, 350, 1, false, false)
+    const mininav = getNav(Player, Map, Terminal, 200, 200, 1.75, true, false)
 
-    let navSketch = new p5(Nav.sketch, document.getElementById('nav'));
+    new p5(Nav.sketch, document.getElementById('nav'));
     new p5(mininav.sketch, document.getElementById('mini-nav'));
     // event buttons
     document.getElementById("event-close").addEventListener("click", () => {
@@ -54,6 +68,27 @@ const setup = () => {
             //document.getElementById('navWrapper').hidden = true
             Nav.enableInteraction()
             Nav.hidden = false
+        }
+    })
+
+
+    Terminal.update(Player.currentTile)
+
+    // terminal 
+    const termText = document.getElementById('terminalText')
+    document.getElementById('termInspect').addEventListener('click', () => {
+        Terminal.appendMessage(Player.currentTile.description || "Space is empty and vast.")
+    })
+    document.getElementById('viewport').addEventListener('click', () => {
+        Terminal.appendMessage(Player.currentTile.description || "Space is empty and vast.")
+    })
+    document.getElementById('termSignal').addEventListener('click', () => {
+        const signals = Map.getSignals(Player.currentTile)
+        if (signals.length == 0) {
+            Terminal.appendMessage("Your radio is silent")
+        } else {
+            Terminal.appendMessage("** INCOMING TRANSMISSION **")
+            Terminal.appendMessage(getSignalText(signals[0]))
         }
     })
 }
