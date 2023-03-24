@@ -18,18 +18,26 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
     let hypoNavPath = []
 
     // All code to do with changing positions should go here
-    const stopMoving = () => {
-        Player.movingTo = null;
+
+    const clear = () => {
         waypointPath = [];
         waypoints = []
+        hypoNavPath = []
         for (const t of Map.tiles) {
             t.path = null
             t.waypoint = null
         }
+        highlightedTile = null
+    }
+
+    const stopMoving = () => {
+        Player.movingTo = null;
+        clear()
         Map.exploreAdjacentTiles(Player.currentTile)
         const signals = Map.getSignals(Player.currentTile)
         renderSignals(signals)
         Terminal.update(Player.currentTile)
+        Terminal.appendMessage("Arrived at " + Player.currentTile.getName())
         return
     }
 
@@ -100,6 +108,9 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
             p5.createCanvas(canvasWidth, canvasHeight);
         }
 
+        const mouseActive = p5 =>
+            allowInteract && (p5.mouseX > 0 && p5.mouseY > 0 && p5.mouseX < canvasWidth && p5.mouseY < canvasHeight)
+
         p5.draw = () => {
             p5.background('#011F1D')
 
@@ -108,7 +119,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
             }
             Map.draw(p5, camera)
 
-            if (allowInteract) {
+            if (mouseActive(p5)) {
                 highlightedTile = Map.getMousedTile(p5.mouseX, p5.mouseY, camera)
                 if (highlightedTile && Player.movingTo == null) {
                     highlightedTile.draw(p5, camera, 'rgba(0,255,255,0.5)')
@@ -135,8 +146,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
         const DRAG_FRAME_DELAY = 3
         let dragStartX, dragStartY
 
-        const mouseActive = p5 =>
-            allowInteract && (p5.mouseX > 0 && p5.mouseY > 0 && p5.mouseX < canvasWidth && p5.mouseY < canvasHeight)
+
 
         p5.mousePressed = (evt) => {
             if (mouseActive(p5)) {
@@ -161,6 +171,9 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
         }
 
         p5.mouseReleased = (evt) => {
+            if (!mouseActive(p5)) {
+                return
+            }
             if (dragging < DRAG_FRAME_DELAY && Player.movingTo == null) {
                 dragging = 0
                 if (highlightedTile) {
@@ -176,7 +189,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
                     waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
                 }
             }
-            dragging = false;
+            dragging = 0;
         }
 
         p5.mouseWheel = (evt) => {
@@ -197,10 +210,16 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
             }
         }
     }
+    const go =
+        () => {
+            Player.movingTo = waypointPath.shift();
+            Terminal.appendMessage("Navigating to " + waypoints.slice(-1)[0].getName() + "...")
+        }
     return {
         sketch,
+        go,
         stop: stopMoving,
-        go: () => Player.movingTo = waypointPath.shift(),
+        clear,
         getDestination: () => highlightedTile,
         mainLoop,
         hidden: true,

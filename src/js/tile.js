@@ -105,6 +105,14 @@ export class Tile {
     this.selected = (dist < tile_size_px / 2.2 * camera.zoom)
   }
 
+  getName() {
+    if (this.explored) {
+      return this.name
+    } else {
+      return "Unknown sector"
+    }
+  }
+
 }
 
 

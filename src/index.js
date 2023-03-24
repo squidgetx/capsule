@@ -49,12 +49,13 @@ const setup = () => {
     // nav menu buttons
     document.getElementById('nav-go').addEventListener('click', () => {
         Nav.go()
-    })
-    document.getElementById('nav-cancel').addEventListener('click', () => {
-        console.log('removing')
+        // dismiss nav
         Nav.disableInteraction()
         document.getElementById('navWrapper').classList.remove('show')
         Nav.hidden = true
+    })
+    document.getElementById('nav-cancel').addEventListener('click', () => {
+        Nav.clear()
     })
     document.getElementById('mini-nav').addEventListener('click', () => {
         if (!Nav.hidden) {
