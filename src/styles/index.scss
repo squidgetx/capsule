@@ -27,6 +27,21 @@ body {
   background-color: $secondary-dark;
 }
 
+// Viewport
+
+#viewport {
+  width: 60vw;
+  height: 20vh;
+  margin-top: -3em;
+  border: 1px solid $secondary-light;
+  border-radius: 30px;
+  background-image: url('https://cdn.theatlantic.com/thumbor/VCoUZjXa6W3jOoQ9yG4pFlR59LY=/80x43:2688x1999/1200x900/media/img/mt/2015/10/Cygnus_v3_BandW/original.jpg');
+  background-size: cover;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
 //Navigation CSS
 .row {
   @include flexCenter(row);
@@ -65,6 +80,9 @@ body {
   @include caps();
   text-align: left;
   padding: 0.5em;
+}
+
+#nav {
 }
 
 

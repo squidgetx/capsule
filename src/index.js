@@ -1,275 +1,52 @@
 // Test import of a JavaScript module
 import p5 from 'p5'
-import { Tile } from './js/tile';
+import { Tile, tile_size_px } from './js/tile';
 import { Map } from './js/map';
-import { events } from './js/events';
+import { renderEvent } from './js/events';
 import { renderSignals } from './js/signals';
 import '@/styles/index.scss';
 import { axialDist } from './js/hex';
 import { endings } from './js/end';
-import { animateTextFrame, setupTextAnimation } from './js/util';
-const sketch = (p5) => {
+import { clamp, setupTextAnimation } from './js/util';
+import { Player } from './js/Player';
+import { getNav } from './js/nav';
 
-    const canvas_width = 600;
+let Nav;
 
-    // player locations
-    let playerX, playerY;
-    let playerTile;
+const setup = () => {
 
-    // control variables for animating movement
-    let waypoints = []
-    let waypointPath = [];
-    let hypoNavPath = [];
-    let animating = false
-    let movingTo = null
+    Map.generateTiles()
 
-    // player methods
-    const drawPlayer = () => {
-        p5.strokeWeight(0)
-        p5.fill('red')
-        p5.circle(playerX, playerY, 10)
-    }
+    Player.currentTile = Map.tiles[7]
+    Player.px = Player.currentTile.px
+    Player.py = Player.currentTile.py
 
-    const stopMoving = () => {
-        animating = false
-        movingTo = null
-        waypointPath = [];
-        waypoints = []
-        for (const t of Map.tiles) {
-            t.path = null
-            t.waypoint = null
-        }
+    Map.exploreAdjacentTiles(Player.currentTile)
 
-        const signals = Map.getSignals(playerTile)
-        renderSignals(signals)
+    Nav = getNav(Player, Map, 400, 300, 1, false, true)
+    const mininav = getNav(Player, Map, 150, 150, 2, true, false)
 
-        return
-    }
-
-    const renderNavMenu = () => {
-        document.getElementById('current-sector').innerHTML = `${playerTile.name}`
-
-        const navInfo = document.getElementById('nav-info')
-        const destination = Map.tiles.find(t => t.selected) || waypoints.slice(-1)[0]
-        const energyCost = hypoNavPath.length
-        if (destination) {
-            const name = destination.explored ? destination.name : "???"
-            navInfo.innerHTML = `<p>${name}</p>`
-            if (energyCost) {
-                navInfo.innerHTML += `<p>Energy cost: ${energyCost}</p>`
-            }
-            if (waypoints.length > 0) {
-                document.getElementById('nav-actions').classList.add('show')
-            } else {
-                document.getElementById('nav-actions').classList.remove('show')
-            }
-        } else {
-            navInfo.innerHTML = ''
-            document.getElementById('nav-actions').classList.remove('show')
-        }
-    }
-
-    // player resources
-    let energy = 20;
-    let oxygen = 100;
-    let health = 5;
-    let morale = 5;
-
-    //resource functions
-    const changeEnergy = (a) => {
-        energy = energy + a;
-        if (energy <= 0) {
-            renderEnd('energy')
-        }
-    }
-
-    const changeOxygen = (a) => {
-        //want to be able to add oxygen
-        //want to be able to pause oxygen
-        // right now it's called every 2 seconds in setup which might not be ideal
-        if (oxygen > 0) {
-            oxygen--;
-        } else {
-            renderEnd('oxygen');
-        }
-    }
-
-    const renderResources = () => {
-        let resourceDiv = document.getElementById("resources");
-        resourceDiv.querySelector(".energy").innerHTML = 'energy: ' + energy;
-        resourceDiv.querySelector(".oxygen").innerHTML = 'oxygen: ' + oxygen + '%';
-        resourceDiv.querySelector(".health").innerHTML = 'health: ' + health;
-        resourceDiv.querySelector(".morale").innerHTML = 'morale: ' + morale;
-    }
-
-
-    // Render the event and call the callback arg when the event is closed.
-    const renderEvent = (e) => {
-        document.getElementById("event-title").innerHTML = e.title;
-        document.getElementById("event-close").disabled = true;
-        document.getElementById("event-effect").innerHTML = '';
-
-        const applyEventEffect = (e) => {
-            let effects = ''
-            if (e.energy) {
-                changeEnergy(e.energy)
-                effects += `Energy: ${e.energy} `
-            }
-            if (e.health) {
-                health = health + e.health
-                effects += `Health: ${e.health} `
-            }
-            if (e.morale) {
-                morale = morale + e.morale
-                effects += `Morale: ${e.morale} `
-            }
-            if (e.consumable) {
-                playerTile.event = null
-            }
-            renderResources()
-            return effects
-        }
-        const renderEventEffect = (e) => {
-            let effects = applyEventEffect(e)
-            document.getElementById("event-effect").innerHTML = effects;
-            document.getElementById("event-close").disabled = false;
-        }
-        setupTextAnimation(
-            document.getElementById('event-text'),
-            e.text,
-            {
-                callback: () => renderEventEffect(e)
-            }
-        );
-    }
-
-    function renderEnd(a) {
-        document.getElementById("end").classList.add("show");
-        //eventually pick a random ending
-        let endtitle = document.getElementById("end-title");
-        let endtext = document.getElementById("end-text");
-        if (a == "oxygen") {
-            endtitle.innerHTML = endings.oxygen.events[0].title;
-            endtext.innerHTML = endings.oxygen.events[0].text;
-        }
-        if (a == "energy") {
-            endtitle.innerHTML = endings.energy.events[0].title;
-            endtext.innerHTML = endings.energy.events[0].text;
-        }
-    }
-    // move the player to the movingTo destination
-    // if we are there already, get the next tile from the queue (waypointPath)
-    // if the queue is empty, we have arrived at the final destination
-    const movePlayer = () => {
-        if (movingTo == null) {
-            animating = false
-            return
-        }
-        animating = true
-        const dX = movingTo.px - playerX
-        const dY = movingTo.py - playerY
-        if (Math.sqrt(dX * dX + dY * dY) < 1) {
-            // we arrived at the next tile, now start moving to the next one
-            changeEnergy(-1)
-            renderResources();
-            movingTo = waypointPath.shift()
-            // stop moving if there are no more places to go next
-            if (movingTo == undefined) {
-                stopMoving()
-            }
-            let playerCoord = Tile.pxToCoord({ x: playerX, y: playerY })
-            playerTile = Map.getTile(playerCoord)
-            if (playerTile.event) {
-                //display event stuff
-                document.getElementById("event").classList.add('show');
-                renderEvent(playerTile.event)
-                stopMoving()
-            } else {
-                document.getElementById("event").classList.remove('show')
-            }
-        } else {
-            playerX += dX / 8
-            playerY += dY / 8
-            let playerCoord = Tile.pxToCoord({ x: playerX, y: playerY })
-            playerTile = Map.getTile(playerCoord)
-            playerTile.path = null
-            playerTile.waypoint = null
-        }
-    }
-
-    p5.setup = () => {
-        Map.generateTiles()
-        //aspect ratio
-        p5.createCanvas(canvas_width, canvas_width * 9 / 16);
-        playerTile = Map.tiles[7]
-        playerX = playerTile.px
-        playerY = playerTile.py
-
-
-        // nav menu buttons
-        document.getElementById('nav-go').addEventListener('click', () => {
-            movingTo = waypointPath.shift()
-        })
-        document.getElementById('nav-cancel').addEventListener('click', () => {
-            stopMoving()
-        })
-
-        // event buttons
-        document.getElementById("event-close").addEventListener("click", () => {
-            document.getElementById("event").classList.remove('show')
-        })
-
-
-        //oxygen timer
-        setInterval(changeOxygen, 2000)
-    }
-
-    p5.draw = () => {
-        p5.background('#011F1D')
-        Map.draw(p5)
-        movePlayer()
-        drawPlayer()
-        if (movingTo == null) {
-            Map.exploreAdjacentTiles(playerTile)
-
-            // draw hypothetical path
-            const hoveredTile = Map.tiles.find((t) => t.selected)
-            const waypoint_copy = [...waypoints]
-            if (hoveredTile) {
-                waypoint_copy.push(hoveredTile)
-            }
-            hypoNavPath = Map.markWaypointPath(p5, playerTile, waypoint_copy)
-        }
-        renderResources()
-        renderNavMenu()
-    }
-
-    // click tiles to set them as waypoints
-    p5.mouseClicked = () => {
-        if (animating)
-            return
-        const clickedTile = Map.tiles.find((t) => t.selected)
-        if (clickedTile) {
-            const indexClicked = waypoints.indexOf(clickedTile)
-            if (indexClicked != -1) {
-                waypoints = waypoints.splice(indexClicked, -1)
-                clickedTile.waypoint = false
-            } else {
-                waypoints.push(clickedTile)
-                clickedTile.waypoint = true
-            }
-            waypointPath = Map.markWaypointPath(p5, playerTile, waypoints)
-        }
-    }
-
-    // press a key to move
-    p5.keyPressed = () => {
-        if (animating) {
-            return
-        }
-        movingTo = waypointPath.shift()
-    }
-
+    new p5(Nav.sketch, document.getElementById('nav'));
+    new p5(mininav.sketch, document.getElementById('mini-nav'));
+    // event buttons
+    document.getElementById("event-close").addEventListener("click", () => {
+        document.getElementById("event").classList.remove('show')
+    })
+    // nav menu buttons
+    document.getElementById('nav-go').addEventListener('click', () => {
+        Nav.go()
+    })
+    document.getElementById('nav-cancel').addEventListener('click', () => {
+        Nav.stop()
+    })
 }
 
-new p5(sketch, document.getElementById('nav'));
+const loop = () => {
+    Nav.mainLoop()
+    Player.mainLoop()
+    requestAnimationFrame(loop)
+}
+
+
+setup()
+loop()

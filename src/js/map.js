@@ -36,15 +36,19 @@ Map.generateTiles = () => {
     }
 }
 
-Map.draw = (p5) => {
+Map.draw = (p5, camera) => {
     for (const tile of Map.tiles) {
-        tile.checkMouse(p5)
-        tile.draw(p5)
+        tile.draw(p5, camera, null)
     }
-
 }
 
-Map.getTilePath = (p5, start, end) => {
+Map.getMousedTile = (mouseX, mouseY, camera) => {
+    let wx = mouseX / camera.zoom + camera.x
+    let wy = mouseY / camera.zoom + camera.y
+    return Map.getTile(Tile.pxToCoord({ x: wx, y: wy }))
+}
+
+Map.getTilePath = (start, end) => {
     const steps = axialDist(start, end) + 1
     const dQ = end.q - start.q
     const dR = end.r - start.r
@@ -73,11 +77,11 @@ Map.getTilePath = (p5, start, end) => {
     return path
 }
 
-Map.getWaypointPath = (p5, start, waypoints) => {
+Map.getWaypointPath = (start, waypoints) => {
     let node = start
     const path = []
     for (const dest of waypoints) {
-        path.push(...Map.getTilePath(p5, node, dest))
+        path.push(...Map.getTilePath(node, dest))
         node = dest
     }
     // remove elements that got duplicated
@@ -95,7 +99,7 @@ Map.getWaypointPath = (p5, start, waypoints) => {
 }
 
 Map.markWaypointPath = (p5, start, waypoints) => {
-    const path = Map.getWaypointPath(p5, start, waypoints)
+    const path = Map.getWaypointPath(start, waypoints)
     for (const t of Map.tiles) {
         t.path = null
     }

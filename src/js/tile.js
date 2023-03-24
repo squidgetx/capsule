@@ -63,7 +63,7 @@ export class Tile {
     return { x: x, y: y }
   }
 
-  draw(p5) {
+  draw(p5, camera, color_override) {
     let color = HIDDEN_COLOR
     if (this.explored) {
       color = EXPLORED_COLOR
@@ -81,13 +81,11 @@ export class Tile {
     if (this.waypoint) {
       color = WAYPOINT_COLOR
     }
-    if (this.selected) {
-      color = SELECTED_COLOR
+    if (color_override) {
+      color = color_override
     }
 
-
-
-    draw_hexagon(p5, this.px, this.py, tile_size_px / 2.1, color)
+    draw_hexagon(p5, (this.px - camera.x) * camera.zoom, (this.py - camera.y) * camera.zoom, tile_size_px / 2.1 * camera.zoom, color)
 
     if (false && this.path) {
       // turn on to see path numbers
@@ -100,11 +98,11 @@ export class Tile {
     //if this has an event then you can change color or w/e
   }
 
-  checkMouse(p5) {
-    const dX = p5.mouseX - this.px
-    const dY = p5.mouseY - this.py
+  checkMouse(p5, camera) {
+    const dX = p5.mouseX + (camera.x - this.px) * camera.zoom
+    const dY = p5.mouseY + (camera.y - this.py) * camera.zoom
     const dist = Math.sqrt(dX * dX + dY * dY)
-    this.selected = (dist < tile_size_px / 2.2)
+    this.selected = (dist < tile_size_px / 2.2 * camera.zoom)
   }
 
 }
