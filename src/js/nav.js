@@ -117,6 +117,8 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
                     for (const t of hypoNavPath) {
                         t.draw(p5, camera, 'rgba(255,255,255,0.5)')
                     }
+                    if (dragging < DRAG_FRAME_DELAY)
+                        p5.cursor('pointer')
                 } else {
                     hypoNavPath = []
                 }
@@ -129,7 +131,8 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
             }
         }
 
-        let dragging = false
+        let dragging = 0
+        const DRAG_FRAME_DELAY = 3
         let dragStartX, dragStartY
 
         const mouseActive = p5 =>
@@ -144,7 +147,10 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
 
         p5.mouseDragged = () => {
             if (mouseActive(p5)) {
-                dragging = true
+                if (dragging > DRAG_FRAME_DELAY) {
+                    p5.cursor('grab')
+                }
+                dragging += 1
                 let dx = p5.mouseX - dragStartX
                 let dy = p5.mouseY - dragStartY
                 camera.x -= dx / camera.zoom
@@ -155,16 +161,18 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
         }
 
         p5.mouseReleased = (evt) => {
-            if (dragging == false && Player.movingTo == null) {
+            if (dragging < DRAG_FRAME_DELAY && Player.movingTo == null) {
+                dragging = 0
                 if (highlightedTile) {
                     const indexClicked = waypoints.indexOf(highlightedTile)
                     if (indexClicked != -1) {
-                        waypoints = waypoints.splice(indexClicked, -1)
+                        waypoints = waypoints.filter(a => a != highlightedTile)
                         highlightedTile.waypoint = false
                     } else {
                         waypoints.push(highlightedTile)
                         highlightedTile.waypoint = true
                     }
+                    console.log(indexClicked, waypoints)
                     waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
                 }
             }
@@ -174,7 +182,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
         p5.mouseWheel = (evt) => {
             if (mouseActive(p5)) {
                 const z1 = camera.zoom
-                const z2 = clamp(camera.zoom + evt.delta / 100, 0.4, 4)
+                const z2 = clamp(camera.zoom + evt.delta / 100, 0.25, 4)
                 // fx, fy are the map X/Y coordinates of the mouse pointer 
                 // eg, if we are at zoom level 2 and the mouse is at 100,100 and camera(10,10)
                 // then we are actually pointing at (60,60)
