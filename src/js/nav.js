@@ -15,6 +15,7 @@ export const getNav = (Player, Map, canvasWidth, canvasHeight, zoomLevel, follow
     let highlightedTile = null;
     let waypoints = []
     let waypointPath = []
+    let hypoNavPath = []
 
     const stopMoving = () => {
         Player.movingTo = null;
@@ -67,7 +68,7 @@ export const getNav = (Player, Map, canvasWidth, canvasHeight, zoomLevel, follow
     const renderNavMenu = () => {
         const navInfo = document.getElementById('nav-info')
         const destination = highlightedTile || waypoints.slice(-1)[0]
-        const energyCost = 0;
+        const energyCost = waypointPath.length + hypoNavPath.length;
         if (destination) {
             const name = destination.explored ? destination.name : "???"
             navInfo.innerHTML = `<p>${name}</p>`
@@ -109,10 +110,12 @@ export const getNav = (Player, Map, canvasWidth, canvasHeight, zoomLevel, follow
                 if (highlightedTile && Player.movingTo == null) {
                     highlightedTile.draw(p5, camera, 'rgba(0,255,255,0.5)')
                     const start = waypoints.length > 0 ? waypoints.slice(-1)[0] : Player.currentTile
-                    const hypoNavPath = Map.getTilePath(start, highlightedTile)
+                    hypoNavPath = Map.getTilePath(start, highlightedTile)
                     for (const t of hypoNavPath) {
                         t.draw(p5, camera, 'rgba(255,255,255,0.5)')
                     }
+                } else {
+                    hypoNavPath = []
                 }
             }
 
