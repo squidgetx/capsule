@@ -1,64 +1,12 @@
-import { renderEnd } from './end';
-
-const MAX_ENERGY = 20
-
 class Player {
-    constructor() {
-        this.energy = MAX_ENERGY;
-        this.oxygen = 100;
-        this.health = 5;
-        this.morale = 5;
-        this.beacons = 5;
-        this.currentTile = null
-    }
-
-
-    //resource functions
-    changeEnergy(a) {
-        this.energy += a;
-        if (this.energy <= 0) {
-            renderEnd('energy')
-        }
-        if (this.energy > MAX_ENERGY) {
-            this.energy = MAX_ENERGY
-        }
-        this.renderResources()
-    }
-
-    changeHealth(a) {
-        this.health += a
-        if (this.health <= 0) {
-            renderEnd('health')
-        }
-        this.renderResources()
-    }
-
-    changeMorale(a) {
-        this.morale += a
-        if (this.morale <= 0) {
-            renderEnd('morale')
-        }
-        this.renderResources()
-    }
-
-    changeOxygen(a) {
-        //want to be able to add oxygen
-        //want to be able to pause oxygen
-        // right now it's called every 2 seconds in setup which might not be ideal
-        if (this.oxygen > 0) {
-            this.oxygen--;
-        } else {
-            renderEnd('oxygen');
-        }
-        this.renderResources()
-    }
-
-    useBeacon() {
-        this.beacons--
-        if (this.beacons < 0) {
-            this.beacons = 0
-        }
-        this.renderResources()
+    constructor(currentTile) {
+        this.currentTile = currentTile
+        this.px = currentTile.px
+        this.py = currentTile.py
+        this.movingTo = null
+        this.movingFrom = null
+        this.movingProgress = 0
+        this.movingQueue = []
     }
 
     draw(p5, camera) {
@@ -71,21 +19,62 @@ class Player {
         p5.circle(cx, cy, s)
     }
 
-    renderResources() {
-        let resourceDiv = document.getElementById("resources");
-        resourceDiv.querySelector(".energy").innerHTML = 'energy: ' + this.energy;
-        resourceDiv.querySelector(".oxygen").innerHTML = 'oxygen: ' + this.oxygen + '%';
-        resourceDiv.querySelector(".health").innerHTML = 'health: ' + this.health;
-        resourceDiv.querySelector(".morale").innerHTML = 'morale: ' + this.morale;
-        resourceDiv.querySelector(".beacon").innerHTML = `Beacons (x${this.beacons})`
+    stopMoving() {
+        this.px = this.currentTile.px
+        this.py = this.currentTile.py
+        this.movingTo = null;
+        this.movingQueue = [];
     }
 
-    mainLoop() {
+    setMovingTo(dest) {
+        this.movingProgress = 0
+        this.movingFrom = this.currentTile
+        this.movingTo = dest
+    }
 
+    setMovingQueue(queue) {
+        this.movingQueue = queue
+        if (queue.length > 0) {
+            this.setMovingTo(this.movingQueue.shift())
+        }
+    }
+
+    move(delta) {
+        if (this.movingTo == null) {
+            return null
+        }
+        this.movingProgress += delta
+        const dX = this.movingTo.px - this.movingFrom.px
+        const dY = this.movingTo.py - this.movingFrom.py
+
+        this.px = dX * this.movingProgress + this.movingFrom.px
+        this.py = dY * this.movingProgress + this.movingFrom.py
+
+        let ret = ''
+
+        if (this.movingProgress > 1) {
+            ret = 'ARRIVE'
+            this.movingProgress = 1
+            this.px = this.movingTo.px
+            this.py = this.movingTo.py
+            if (this.movingQueue.length > 0) {
+                this.setMovingTo(this.movingQueue.shift())
+            } else {
+                this.stopMoving()
+                ret = 'END'
+            }
+        } else if (this.movingProgress > 0.5) {
+            if (this.currentTile != this.movingTo) {
+                ret = 'CROSS'
+            }
+            this.currentTile = this.movingTo
+            this.movingFrom.path = null
+            this.movingFrom.waypoint = null
+        }
+
+        return ret
     }
 
 }
 
-const singlePlayer = new Player()
-
-export const getPlayer = () => singlePlayer
+export const getPlayer = (t) => new Player(t)

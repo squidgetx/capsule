@@ -1,61 +1,29 @@
 // Test import of a JavaScript module
-import p5 from 'p5'
-import { Tile, tile_size_px } from './js/tile';
-import { getMap } from './js/map';
-import { inspect } from './js/inspect';
-import { getSignalText, renderSignal } from './js/signals';
 import '@/styles/index.scss';
-import { axialDist } from './js/hex';
-import { endings } from './js/end';
-import { clamp, setupTextAnimation } from './js/util';
-import { getPlayer } from './js/Player';
-import { getNav } from './js/nav';
+import p5 from 'p5'
+import { getMap } from './js/map';
+import { getPlayer } from './js/player';
+import { getNav, setupNavControls } from './js/nav';
+import { Game, RESOURCE } from './js/game';
+import { getTerminal } from './js/terminal'
 
-let Map, Player, Nav, Terminal
+let game, map, player, nav, terminal
 
 const setup = () => {
 
-    Map = getMap()
-    Map.generateTiles()
-    Player = getPlayer()
+    map = getMap()
+    terminal = getTerminal()
+    map.generateTiles()
+    player = getPlayer(map.tiles[7])
+    nav = getNav(player, map, terminal, 600, 350, 1, false, false)
+    game = new Game(player, map, terminal, nav)
 
-    // eventually move this to a module probably
+    game.crossTileActions()
+    game.renderResources()
 
-    Terminal = {
-        update: (currentTile) => {
-            const termHeader = document.getElementById('terminalHeader')
-            termHeader.innerHTML = currentTile.name
-        },
-        appendMessage: (msg) => {
-            const termText = document.getElementById('terminalText')
-            const newMsg = document.createElement('p')
-            termText.prepend(newMsg)
-            setupTextAnimation(newMsg, msg, {})
-        },
-        signal: null
-    }
-    Terminal.setSignals = (signals) => {
-        // Right now we just fetch the signals again later
-        if (signals.length > 0) {
-            Terminal.signal = getSignalText(signals[0])
-            document.getElementById('termSignal').classList.remove('sub-btn')
-        } else {
-            document.getElementById('termSignal').classList.add('sub-btn')
-        }
-    }
+    const mininav = getNav(player, map, terminal, 200, 200, 1.75, true, false)
 
-    Player.currentTile = Map.tiles[7]
-    Player.px = Player.currentTile.px
-    Player.py = Player.currentTile.py
-
-    Nav = getNav(Player, Map, Terminal, 600, 350, 1, false, false)
-    Map.exploreAdjacentTiles(Player.currentTile)
-
-    Terminal.update(Player.currentTile)
-
-    const mininav = getNav(Player, Map, Terminal, 200, 200, 1.75, true, false)
-
-    new p5(Nav.sketch, document.getElementById('nav'));
+    new p5(nav.sketch, document.getElementById('nav'));
     new p5(mininav.sketch, document.getElementById('mini-nav'));
 
     // event buttons
@@ -63,63 +31,32 @@ const setup = () => {
         document.getElementById("event").classList.remove('show')
     })
 
-    // nav menu buttons
-    document.getElementById('nav-go').addEventListener('click', () => {
-        Nav.go()
-        // dismiss nav
-        Nav.disableInteraction()
-        document.getElementById('navWrapper').classList.remove('show')
-        Nav.hidden = true
-    })
-    document.getElementById('nav-cancel').addEventListener('click', () => {
-        Nav.clear()
-    })
-    document.getElementById('mini-nav').addEventListener('click', () => {
-        if (!Nav.hidden) {
-            Nav.disableInteraction()
-            document.getElementById('navWrapper').classList.remove('show')
-            Nav.hidden = true
-        } else {
-            document.getElementById('navWrapper').classList.add('show')
-            //document.getElementById('navWrapper').hidden = true
-            Nav.enableInteraction()
-            Nav.hidden = false
-        }
-    })
-
-
-    // terminal 
+    // terminal controls
     document.getElementById('termInspect').addEventListener('click', () => {
-        Terminal.appendMessage(inspect(Player, Map))
+        game.inspect()
     })
     document.getElementById('viewport').addEventListener('click', () => {
-        Terminal.appendMessage(inspect(Player, Map))
+        game.inspect()
     })
     document.getElementById('termSignal').addEventListener('click', () => {
-
-        if (Terminal.signal) {
-            Terminal.appendMessage("** INCOMING TRANSMISSION **")
-            Terminal.appendMessage(Terminal.signal)
+        if (terminal.signal) {
+            terminal.appendMessage("** INCOMING TRANSMISSION **")
+            terminal.appendMessage(terminal.signal)
         } else {
-            Terminal.appendMessage("Your radio is silent")
+            terminal.appendMessage("Your radio is silent")
         }
     })
-
     document.getElementById('beacon').addEventListener('click', () => {
-        console.log(Player)
-        if (Player.beacons > 0) {
-            Terminal.appendMessage("You light a rescue beacon...Nothing happens.")
-            Player.useBeacon()
-        } else {
-            Terminal.appendMessage("You are out of rescue beacons. How are you going to get rescued now?")
-        }
+        game.useBeacon()
     })
 
+    // nav controls
+    setupNavControls(nav)
 
 }
 
 const loop = () => {
-    Nav.mainLoop()
+    game.loop()
     requestAnimationFrame(loop)
 }
 

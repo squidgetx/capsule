@@ -1,10 +1,4 @@
-import { Tile } from './tile';
-import { renderEvent } from './events';
-import '@/styles/index.scss';
 import { clamp } from './util';
-import { renderSignals } from './signals';
-
-const MOVE_SPEED = 0.005
 
 /**
  * 
@@ -20,6 +14,7 @@ const MOVE_SPEED = 0.005
  */
 export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLevel, followPlayer, allowInteract) => {
     const camera = { x: 0, y: 0, zoom: zoomLevel }
+
     const centerCamera = () => {
         camera.x = (Player.px * camera.zoom - canvasWidth / 2) / camera.zoom
         camera.y = (Player.py * camera.zoom - canvasHeight / 2) / camera.zoom
@@ -44,78 +39,10 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
         highlightedTile = null
     }
 
-    const stopMoving = () => {
-        Player.currentTile = Player.movingTo
-        Player.px = Player.currentTile.px
-        Player.py = Player.currentTile.py
-        Player.movingTo = null;
-        clear()
-
-        // Code used to handle arriving at a new tile
-        // Feels like this should live somwhere else, but not that obvious where
-        Map.exploreAdjacentTiles(Player.currentTile)
-        Terminal.update(Player.currentTile)
-        Terminal.setSignals(Map.getSignals(Player.currentTile))
-        Terminal.appendMessage("Arrived at " + Player.currentTile.getName())
-
-        if (Player.currentTile.star != null) {
-            Terminal.appendMessage("Nearby star system detected. Energy systems recovered.")
-            Player.changeEnergy(Player.currentTile.star)
-        }
-
-        return
-    }
-
     const go = () => {
-        Player.movingTo = waypointPath.shift();
-        Player.movingProgress = 0
+        Player.setMovingQueue([...waypointPath])
         // for animation
-        Player.movingFrom = Player.currentTile
         Terminal.appendMessage("Navigating to " + waypoints.slice(-1)[0].getName() + "...")
-    }
-
-    const movePlayer = () => {
-        if (Player.movingTo == null) {
-            return
-        }
-        Player.movingProgress += MOVE_SPEED
-        const dX = Player.movingTo.px - Player.movingFrom.px
-        const dY = Player.movingTo.py - Player.movingFrom.py
-
-        Player.px = dX * Player.movingProgress + Player.movingFrom.px
-        Player.py = dY * Player.movingProgress + Player.movingFrom.py
-
-        if (Player.movingProgress > 1) {
-            // we arrived at the next tile in the path
-
-            Player.changeEnergy(-1)
-
-            // check for events
-            if (Player.movingTo.event) {
-                //display event stuff
-                renderEvent(Player.movingTo.event, Player)
-                // TODO: if we want events that don't interrupt the path completely, make change here
-                stopMoving()
-                return
-            }
-            Terminal.setSignals(Map.getSignals(Player.movingTo))
-
-            Player.movingFrom.path = null
-            Player.movingFrom.waypoint = null
-
-            // align player coordinates with current position
-            Player.movingProgress = 0
-            Player.px = Player.movingTo.px
-            Player.py = Player.movingTo.py
-            Player.movingFrom = Player.movingTo
-
-            // move to the next location in the path
-            if (waypointPath.length == 0) {
-                stopMoving()
-            } else {
-                Player.movingTo = waypointPath.shift()
-            }
-        }
     }
 
     const renderNavMenu = () => {
@@ -139,15 +66,11 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
         }
     }
 
-    const mainLoop = () => {
-        movePlayer()
-        renderNavMenu()
-    }
-
     const sketch = (p5) => {
 
         p5.setup = () => {
             p5.createCanvas(canvasWidth, canvasHeight);
+            //Map.draw(p5, camera)
         }
 
         const mouseActive = p5 =>
@@ -159,6 +82,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
             if (followPlayer) {
                 centerCamera()
             }
+
             Map.draw(p5, camera)
 
             if (mouseActive(p5)) {
@@ -253,12 +177,44 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
     return {
         sketch,
         go,
-        stop: stopMoving,
         clear,
         getDestination: () => highlightedTile,
-        mainLoop,
-        hidden: true,
         disableInteraction: () => { allowInteract = false },
         enableInteraction: () => { allowInteract = true }
     }
+}
+
+// Functions to handle the HTML rendering of the main nav component //
+
+let mainNavHidden = true
+
+const dismissNav = (nav) => {
+    nav.disableInteraction()
+    document.getElementById('navWrapper').classList.remove('show')
+    mainNavHidden = true
+}
+
+const showNav = (nav) => {
+    nav.enableInteraction()
+    document.getElementById('navWrapper').classList.add('show')
+    mainNavHidden = false
+}
+
+export const setupNavControls = (nav) => {
+    // nav menu buttons
+    document.getElementById('nav-go').addEventListener('click', () => {
+        nav.go()
+        dismissNav(nav)
+    })
+    document.getElementById('nav-cancel').addEventListener('click', () => {
+        nav.clear()
+    })
+
+    document.getElementById('mini-nav').addEventListener('click', () => {
+        if (mainNavHidden) {
+            showNav(nav)
+        } else {
+            dismissNav(nav)
+        }
+    })
 }

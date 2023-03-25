@@ -1,7 +1,8 @@
 import { setupTextAnimation } from "./util";
+import { RESOURCE } from "./game";
 
 // Render the event and call the callback arg when the event is closed.
-export const renderEvent = (e, player) => {
+export const renderEvent = (e, Game, cb) => {
 
     document.getElementById("event").classList.add('show');
     document.getElementById("event-title").innerHTML = e.title;
@@ -10,28 +11,25 @@ export const renderEvent = (e, player) => {
 
     const applyEventEffect = (e) => {
         let effects = ''
-        if (e.energy) {
-            player.changeEnergy(e.energy)
-            effects += `Energy: ${e.energy} `
+        for (const resource of Object.values(RESOURCE)) {
+            if (e[resource]) {
+                Game.changeResourceLog(resource, e[resource])
+                effects += `${resource}: ${e[resource]} `
+            }
         }
-        if (e.health) {
-            player.health += e.health
-            effects += `Health: ${e.health} `
-        }
-        if (e.morale) {
-            player.morale += e.morale
-            effects += `Morale: ${e.morale} `
-        }
+
         if (e.consumable) {
-            player.currentTile.event = null
+            Game.player.currentTile.event = null
         }
         return effects
     }
+
     const renderEventEffect = (e) => {
         let effects = applyEventEffect(e)
         document.getElementById("event-effect").innerHTML = effects;
         document.getElementById("event-close").disabled = false;
     }
+
     setupTextAnimation(
         document.getElementById('event-text'),
         e.text,

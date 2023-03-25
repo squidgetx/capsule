@@ -41,6 +41,7 @@ export const getMap = () => {
         for (const tile of tiles) {
             tile.draw(p5, camera, null)
         }
+
     }
 
     const getMousedTile = (mouseX, mouseY, camera) => {
