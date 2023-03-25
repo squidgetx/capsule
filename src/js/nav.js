@@ -4,6 +4,18 @@ import '@/styles/index.scss';
 import { clamp } from './util';
 import { renderSignals } from './signals';
 
+/**
+ * 
+ * @param {*} Player 
+ * @param {*} Map 
+ * @param {*} Terminal 
+ * @param {*} canvasWidth 
+ * @param {*} canvasHeight 
+ * @param {*} zoomLevel 
+ * @param {*} followPlayer boolean, whether to lock the camera on the player
+ * @param {*} allowInteract boolean, whether to allow interaction
+ * @returns object with properties 
+ */
 export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLevel, followPlayer, allowInteract) => {
     const camera = { x: 0, y: 0, zoom: zoomLevel }
     const centerCamera = () => {
@@ -145,8 +157,6 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
         let dragging = 0
         const DRAG_FRAME_DELAY = 3
         let dragStartX, dragStartY
-
-
 
         p5.mousePressed = (evt) => {
             if (mouseActive(p5)) {
