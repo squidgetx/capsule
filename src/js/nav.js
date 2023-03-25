@@ -4,6 +4,8 @@ import '@/styles/index.scss';
 import { clamp } from './util';
 import { renderSignals } from './signals';
 
+const MOVE_SPEED = 0.005
+
 /**
  * 
  * @param {*} Player 
@@ -61,38 +63,56 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
         return
     }
 
+    const go = () => {
+        Player.movingTo = waypointPath.shift();
+        Player.movingProgress = 0
+        // for animation
+        Player.movingFrom = Player.currentTile
+        Terminal.appendMessage("Navigating to " + waypoints.slice(-1)[0].getName() + "...")
+    }
+
     const movePlayer = () => {
         if (Player.movingTo == null) {
             return
         }
-        const dX = Player.movingTo.px - Player.px
-        const dY = Player.movingTo.py - Player.py
-        if (Math.sqrt(dX * dX + dY * dY) < 1) {
-            // we arrived at the next tile, now start moving to the next one
+        Player.movingProgress += MOVE_SPEED
+        const dX = Player.movingTo.px - Player.movingFrom.px
+        const dY = Player.movingTo.py - Player.movingFrom.py
+
+        Player.px = dX * Player.movingProgress + Player.movingFrom.px
+        Player.py = dY * Player.movingProgress + Player.movingFrom.py
+
+        if (Player.movingProgress > 1) {
+            // we arrived at the next tile in the path
+
             Player.changeEnergy(-1)
-            Player.movingTo = waypointPath.shift()
-            // stop moving if there are no more places to go next
-            if (Player.movingTo == undefined) {
-                stopMoving()
-            }
-            let playerCoord = Tile.pxToCoord({ x: Player.px, y: Player.py })
-            Player.currentTile = Map.getTile(playerCoord)
-            if (Player.currentTile.event) {
+
+            // check for events
+            if (Player.movingTo.event) {
                 //display event stuff
-                document.getElementById("event").classList.add('show');
-                renderEvent(Player.currentTile.event, Player)
+                renderEvent(Player.movingTo.event, Player)
+                // TODO: if we want events that don't interrupt the path completely, make change here
+                Player.currentTile = Player.movingTo
+                stopMoving()
+                return
+            }
+
+            Player.movingFrom.path = null
+            Player.movingFrom.waypoint = null
+
+            // align player coordinates with current position
+            Player.movingProgress = 0
+            Player.px = Player.movingTo.px
+            Player.py = Player.movingTo.py
+            Player.movingFrom = Player.movingTo
+
+            // move to the next location in the path
+            if (waypointPath.length == 0) {
+                Player.currentTile = Player.movingTo
                 stopMoving()
             } else {
-                document.getElementById("event").classList.remove('show')
+                Player.movingTo = waypointPath.shift()
             }
-        } else {
-            Player.px += dX / 32
-            Player.py += dY / 32
-
-            let playerCoord = Tile.pxToCoord({ x: Player.px, y: Player.py })
-            Player.currentTile = Map.getTile(playerCoord)
-            Player.currentTile.path = null
-            Player.currentTile.waypoint = null
         }
     }
 
@@ -227,11 +247,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
             }
         }
     }
-    const go =
-        () => {
-            Player.movingTo = waypointPath.shift();
-            Terminal.appendMessage("Navigating to " + waypoints.slice(-1)[0].getName() + "...")
-        }
+
     return {
         sketch,
         go,

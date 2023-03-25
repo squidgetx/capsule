@@ -2,6 +2,8 @@ import { setupTextAnimation } from "./util";
 
 // Render the event and call the callback arg when the event is closed.
 export const renderEvent = (e, player) => {
+
+    document.getElementById("event").classList.add('show');
     document.getElementById("event-title").innerHTML = e.title;
     document.getElementById("event-close").disabled = true;
     document.getElementById("event-effect").innerHTML = '';
