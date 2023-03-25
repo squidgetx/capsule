@@ -243,15 +243,10 @@ button {
   gap: 1em;
   color: $font-color;
   min-width: 10em;
-  #capsule, #player {
+  > div {
     @include flexCenter(column);
     align-items: baseline;
     padding: 0.25em 1em 0.25em 1em;
-  }
-  #capsule {
-    background-color: $primary-dark;
-  }
-  #player {
     background-color: $primary-dark;
   }
 }

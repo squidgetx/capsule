@@ -98,6 +98,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
                 stopMoving()
                 return
             }
+            Terminal.setSignals(Map.getSignals(Player.movingTo))
 
             Player.movingFrom.path = null
             Player.movingFrom.waypoint = null

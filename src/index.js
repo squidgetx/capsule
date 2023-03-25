@@ -20,6 +20,7 @@ const setup = () => {
     Player = getPlayer()
 
     // eventually move this to a module probably
+
     Terminal = {
         update: (currentTile) => {
             const termHeader = document.getElementById('terminalHeader')
@@ -31,13 +32,15 @@ const setup = () => {
             termText.prepend(newMsg)
             setupTextAnimation(newMsg, msg, {})
         },
-        setSignals: (signals) => {
-            // Right now we just fetch the signals again later
-            if (signals.length > 0) {
-                document.getElementById('termSignal').classList.remove('sub-btn')
-            } else {
-                document.getElementById('termSignal').classList.add('sub-btn')
-            }
+        signal: null
+    }
+    Terminal.setSignals = (signals) => {
+        // Right now we just fetch the signals again later
+        if (signals.length > 0) {
+            Terminal.signal = getSignalText(signals[0])
+            document.getElementById('termSignal').classList.remove('sub-btn')
+        } else {
+            document.getElementById('termSignal').classList.add('sub-btn')
         }
     }
 
@@ -93,14 +96,26 @@ const setup = () => {
         Terminal.appendMessage(inspect(Player, Map))
     })
     document.getElementById('termSignal').addEventListener('click', () => {
-        const signals = Map.getSignals(Player.currentTile)
-        if (signals.length == 0) {
-            Terminal.appendMessage("Your radio is silent")
-        } else {
+
+        if (Terminal.signal) {
             Terminal.appendMessage("** INCOMING TRANSMISSION **")
-            Terminal.appendMessage(getSignalText(signals[0]))
+            Terminal.appendMessage(Terminal.signal)
+        } else {
+            Terminal.appendMessage("Your radio is silent")
         }
     })
+
+    document.getElementById('beacon').addEventListener('click', () => {
+        console.log(Player)
+        if (Player.beacons > 0) {
+            Terminal.appendMessage("You light a rescue beacon...Nothing happens.")
+            Player.useBeacon()
+        } else {
+            Terminal.appendMessage("You are out of rescue beacons. How are you going to get rescued now?")
+        }
+    })
+
+
 }
 
 const loop = () => {

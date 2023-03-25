@@ -8,6 +8,7 @@ class Player {
         this.oxygen = 100;
         this.health = 5;
         this.morale = 5;
+        this.beacons = 5;
         this.currentTile = null
     }
 
@@ -52,6 +53,14 @@ class Player {
         this.renderResources()
     }
 
+    useBeacon() {
+        this.beacons--
+        if (this.beacons < 0) {
+            this.beacons = 0
+        }
+        this.renderResources()
+    }
+
     draw(p5, camera) {
         p5.strokeWeight(0)
         p5.fill('red')
@@ -68,6 +77,7 @@ class Player {
         resourceDiv.querySelector(".oxygen").innerHTML = 'oxygen: ' + this.oxygen + '%';
         resourceDiv.querySelector(".health").innerHTML = 'health: ' + this.health;
         resourceDiv.querySelector(".morale").innerHTML = 'morale: ' + this.morale;
+        resourceDiv.querySelector(".beacon").innerHTML = `Beacons (x${this.beacons})`
     }
 
     mainLoop() {
