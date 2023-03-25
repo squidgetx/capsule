@@ -1,12 +1,5 @@
 import { pickRandom, setCharAt, setupTextAnimation } from "./util"
 
-export const renderSignals = (signals) => {
-    if (signals.length > 0) {
-        document.getElementById('termSignal').classList.remove('sub-btn')
-    } else {
-        document.getElementById('termSignal').classList.add('sub-btn')
-    }
-}
 
 const scrambleText = (text, distance) => {
     const scrambleWords = ["brzt", "...", "kssh", "\u275A", "?", " "]

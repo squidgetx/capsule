@@ -28,6 +28,7 @@ export const getMap = () => {
 
         //select a handfull of random tiles, give them events
         tiles[0].event = events.asteroids;
+        tiles[10].star = 10
         tiles[5].event = events.signal;
         tiles[15].event = events.pirates;
         tiles[21].signal = {

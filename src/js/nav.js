@@ -45,11 +45,19 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
     const stopMoving = () => {
         Player.movingTo = null;
         clear()
+
+        // Code used to handle arriving at a new tile
+        // Feels like this should live somwhere else, but not that obvious where
         Map.exploreAdjacentTiles(Player.currentTile)
-        const signals = Map.getSignals(Player.currentTile)
-        renderSignals(signals)
         Terminal.update(Player.currentTile)
+        Terminal.setSignals(Map.getSignals(Player.currentTile))
         Terminal.appendMessage("Arrived at " + Player.currentTile.getName())
+
+        if (Player.currentTile.star != null) {
+            Terminal.appendMessage("Nearby star system detected. Energy systems recovered.")
+            Player.changeEnergy(Player.currentTile.star)
+        }
+
         return
     }
 
@@ -195,7 +203,6 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
                         waypoints.push(highlightedTile)
                         highlightedTile.waypoint = true
                     }
-                    console.log(indexClicked, waypoints)
                     waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
                 }
             }

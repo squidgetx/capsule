@@ -81,6 +81,10 @@ export class Tile {
     if (this.waypoint) {
       color = WAYPOINT_COLOR
     }
+    if (this.star) {
+      color = "yellow"
+    }
+
     if (color_override) {
       color = color_override
     }

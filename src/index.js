@@ -18,6 +18,8 @@ const setup = () => {
     Map = getMap()
     Map.generateTiles()
     Player = getPlayer()
+
+    // eventually move this to a module probably
     Terminal = {
         update: (currentTile) => {
             const termHeader = document.getElementById('terminalHeader')
@@ -28,8 +30,15 @@ const setup = () => {
             const newMsg = document.createElement('p')
             termText.prepend(newMsg)
             setupTextAnimation(newMsg, msg, {})
+        },
+        setSignals: (signals) => {
+            // Right now we just fetch the signals again later
+            if (signals.length > 0) {
+                document.getElementById('termSignal').classList.remove('sub-btn')
+            } else {
+                document.getElementById('termSignal').classList.add('sub-btn')
+            }
         }
-
     }
 
     Player.currentTile = Map.tiles[7]

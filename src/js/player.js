@@ -1,19 +1,25 @@
 import { renderEnd } from './end';
 
+const MAX_ENERGY = 20
+
 class Player {
     constructor() {
-        this.energy = 20;
+        this.energy = MAX_ENERGY;
         this.oxygen = 100;
         this.health = 5;
         this.morale = 5;
         this.currentTile = null
     }
 
+
     //resource functions
     changeEnergy(a) {
         this.energy += a;
         if (this.energy <= 0) {
             renderEnd('energy')
+        }
+        if (this.energy > MAX_ENERGY) {
+            this.energy = MAX_ENERGY
         }
         this.renderResources()
     }
