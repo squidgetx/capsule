@@ -45,6 +45,9 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
     }
 
     const stopMoving = () => {
+        Player.currentTile = Player.movingTo
+        Player.px = Player.currentTile.px
+        Player.py = Player.currentTile.py
         Player.movingTo = null;
         clear()
 
@@ -92,7 +95,6 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
                 //display event stuff
                 renderEvent(Player.movingTo.event, Player)
                 // TODO: if we want events that don't interrupt the path completely, make change here
-                Player.currentTile = Player.movingTo
                 stopMoving()
                 return
             }
@@ -108,7 +110,6 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
 
             // move to the next location in the path
             if (waypointPath.length == 0) {
-                Player.currentTile = Player.movingTo
                 stopMoving()
             } else {
                 Player.movingTo = waypointPath.shift()

@@ -2,7 +2,7 @@
 import p5 from 'p5'
 import { Tile, tile_size_px } from './js/tile';
 import { getMap } from './js/map';
-import { renderEvent } from './js/events';
+import { inspect } from './js/inspect';
 import { getSignalText, renderSignal } from './js/signals';
 import '@/styles/index.scss';
 import { axialDist } from './js/hex';
@@ -87,10 +87,10 @@ const setup = () => {
 
     // terminal 
     document.getElementById('termInspect').addEventListener('click', () => {
-        Terminal.appendMessage(Player.currentTile.description || "Space is empty and vast.")
+        Terminal.appendMessage(inspect(Player, Map))
     })
     document.getElementById('viewport').addEventListener('click', () => {
-        Terminal.appendMessage(Player.currentTile.description || "Space is empty and vast.")
+        Terminal.appendMessage(inspect(Player, Map))
     })
     document.getElementById('termSignal').addEventListener('click', () => {
         const signals = Map.getSignals(Player.currentTile)

@@ -112,9 +112,7 @@ export const getMap = () => {
         return path
     }
 
-    const exploreAdjacentTiles = (tile) => {
-        // Return array of adjacent tiles to the given tile
-        tiles.forEach(t => t.visible = false)
+    const getAdjacentTiles = (tile) => {
         const adjacentAxial = [
             { q: tile.q + 1, r: tile.r },
             { q: tile.q - 1, r: tile.r },
@@ -123,7 +121,14 @@ export const getMap = () => {
             { q: tile.q, r: tile.r + 1 },
             { q: tile.q, r: tile.r - 1 },
         ]
-        const adjacentTiles = adjacentAxial.map(a => getTile(axialToCoord(a))).filter(a => a != null)
+        return adjacentAxial.map(a => getTile(axialToCoord(a))).filter(a => a != null)
+    }
+
+    const exploreAdjacentTiles = (tile) => {
+        // Return array of adjacent tiles to the given tile
+        const adjacentTiles = getAdjacentTiles(tile)
+
+        tiles.forEach(t => t.visible = false)
         tile.explored = true
         tile.visible = true
         adjacentTiles.forEach(t => t.explored = true)
@@ -146,6 +151,6 @@ export const getMap = () => {
         width, height, tiles, getTile, getMousedTile,
         draw, generateTiles,
         getTilePath, getWaypointPath, markWaypointPath,
-        getSignals, exploreAdjacentTiles
+        getSignals, exploreAdjacentTiles, getAdjacentTiles
     }
 }
