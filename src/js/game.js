@@ -1,7 +1,7 @@
 //resource functions
 import { inspect } from "./inspect";
 import { renderEnd } from "./end";
-import { renderEvent } from "./events";
+import { applyEventEffect, renderEvent } from "./events";
 
 export const RESOURCE = {
     HEALTH: 'health',
@@ -32,20 +32,28 @@ export class Game {
 
         if (move == 'CROSS') {
             // we arrived at the next tile in the path
-
             this.changeResource(RESOURCE.ENERGY, -1)
-
             this.crossTileActions()
-        } else if (move == 'ARRIVE' || move == 'END') {
+        }
+
+        if (move == 'ARRIVE') {
             // check for events
-            if (this.player.currentTile.event) {
-                //display event stuff
-                this.renderEvent(this.player.currentTile.event)
-                // TODO: if we want events that don't interrupt the path completely, make change here
-                this.player.stopMoving()
-                this.nav.clear()
+            const blockingEvents = this.player.currentTile.getEvents().filter(e => e.blocking == true)
+            if (blockingEvents.length > 0) {
+                // TODO handle multiple events in one tile?
+                console.log('be', blockingEvents)
+                this.renderEvent(blockingEvents[0])
             }
         }
+
+        if (move == 'START') {
+            // check for warnings
+            const warnings = this.player.movingTo.getWarnings()
+            if (warnings.length > 0) {
+                this.terminal.appendMessage(warnings[0])
+            }
+        }
+
         if (move == "END") {
             this.endNavigationAction()
         }
@@ -65,7 +73,14 @@ export class Game {
     }
 
     renderEvent(evt) {
-        renderEvent(evt, this)
+        if (evt.asModal) {
+            renderEvent(evt, this)
+            this.player.stopMoving()
+            this.nav.clear()
+        } else {
+            this.terminal.appendMessage(evt.text)
+            applyEventEffect(evt, this)
+        }
     }
 
     crossTileActions() {
@@ -84,11 +99,18 @@ export class Game {
     endNavigationAction() {
         const currentTile = this.player.currentTile
         this.terminal.appendMessage("Arrived at " + currentTile.getName())
+        const arrivalEvents = this.player.currentTile.getEvents()
+        if (arrivalEvents.length > 0) {
+            console.log('ae', arrivalEvents)
+            this.renderEvent(arrivalEvents[0])
+        }
+        this.nav.clear()
     }
 
     changeResourceLog(resource, delta) {
         this.changeResource(resource, delta)
-        this.terminal.appendMessage(`${delta} ${resource}`)
+        const verb = delta > 0 ? "Gained" : "Lost"
+        this.terminal.appendMessage(`${verb} ${delta} ${resource}`)
     }
 
     changeResource(resource, delta) {
@@ -97,7 +119,6 @@ export class Game {
             renderEnd(resource)
         }
         this.renderResources()
-
     }
 
     renderResources() {

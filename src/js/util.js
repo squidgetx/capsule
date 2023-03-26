@@ -72,6 +72,6 @@ export const setupTextAnimation = (div, text, options) => {
                 options.callback()
             }
             clearInterval(intervalId)
-        })
+        }, { once: true })
     }
 }

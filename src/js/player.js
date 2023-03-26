@@ -43,14 +43,16 @@ class Player {
         if (this.movingTo == null) {
             return null
         }
+        let ret = ''
+        if (this.movingProgress == 0) {
+            ret = 'START'
+        }
         this.movingProgress += delta
         const dX = this.movingTo.px - this.movingFrom.px
         const dY = this.movingTo.py - this.movingFrom.py
 
         this.px = dX * this.movingProgress + this.movingFrom.px
         this.py = dY * this.movingProgress + this.movingFrom.py
-
-        let ret = ''
 
         if (this.movingProgress > 1) {
             ret = 'ARRIVE'

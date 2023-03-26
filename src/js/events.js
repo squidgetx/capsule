@@ -1,31 +1,28 @@
 import { setupTextAnimation } from "./util";
 import { RESOURCE } from "./game";
 
+export const applyEventEffect = (e, game) => {
+    console.log("Applying event", e)
+    let effectText = ''
+    for (const resource of Object.values(RESOURCE)) {
+        if (e.effects[resource]) {
+            game.changeResourceLog(resource, e.effects[resource])
+            effectText += `${resource}: ${e.effects[resource]} `
+        }
+    }
+
+    return effectText
+}
 // Render the event and call the callback arg when the event is closed.
-export const renderEvent = (e, Game, cb) => {
+export const renderEvent = (e, game, cb) => {
 
     document.getElementById("event").classList.add('show');
     document.getElementById("event-title").innerHTML = e.title;
     document.getElementById("event-close").disabled = true;
     document.getElementById("event-effect").innerHTML = '';
 
-    const applyEventEffect = (e) => {
-        let effects = ''
-        for (const resource of Object.values(RESOURCE)) {
-            if (e[resource]) {
-                Game.changeResourceLog(resource, e[resource])
-                effects += `${resource}: ${e[resource]} `
-            }
-        }
-
-        if (e.consumable) {
-            Game.player.currentTile.event = null
-        }
-        return effects
-    }
-
     const renderEventEffect = (e) => {
-        let effects = applyEventEffect(e)
+        let effects = applyEventEffect(e, game)
         document.getElementById("event-effect").innerHTML = effects;
         document.getElementById("event-close").disabled = false;
     }

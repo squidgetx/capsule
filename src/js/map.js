@@ -2,6 +2,7 @@ import { Tile } from "./tile"
 import { cube_round, axialDist, axialToCoord } from "./hex"
 import { events } from './events';
 import { clamp } from "./util"
+import { SPACE_STUFF } from "./spaceStuff";
 
 export const getMap = () => {
     // READ ONLY PROPERTIES 
@@ -27,14 +28,20 @@ export const getMap = () => {
         }
 
         //select a handfull of random tiles, give them events
-        tiles[0].event = events.asteroids;
-        tiles[10].star = 10
-        tiles[5].event = events.signal;
-        tiles[15].event = events.pirates;
+        //tiles[0].event = events.asteroids;
+        tiles[3].spaceStuff = [SPACE_STUFF.asteroids]
+        //tiles[10].star = 10
+        tiles[10].spaceStuff = [SPACE_STUFF.star]
+        tiles[6].spaceStuff = [SPACE_STUFF.blackHole]
+        //tiles[15].event = events.pirates;
+        tiles[15].spaceStuff = [SPACE_STUFF.pirates]
+
+        /*
         tiles[21].signal = {
             strength: 3,
             text: "Every element of the program was in trouble and so were we. The simulators were not working, Mission Control was behind in virtually every area, and the flight and test procedures changed daily. Nothing we did had any shelf life. Not one of us stood up and said, ‘Dammit, stop!’ I don’t know what Thompson’s committee will find as the cause, but I know what I find. We are the cause! We were not ready! We did not do our job. We were rolling the dice, hoping that things would come together by launch day, when in our hearts we knew it would take a miracle. We were pushing the schedule and betting that the Cape would slip before we did."
         }
+        */
     }
 
     const draw = (p5, camera) => {
@@ -138,14 +145,7 @@ export const getMap = () => {
 
     // Return array of signals
     const getSignals = (playerTile) => {
-        const signalTiles = tiles.filter(t => t.signal != undefined)
-        // visible signals are within distance 'signal.strength' from the player
-        const visibleSignalTiles = signalTiles.filter(t => axialDist(t, playerTile) < t.signal.strength)
-        return visibleSignalTiles.map(t => {
-            t.signal.distance = axialDist(t, playerTile);
-            return t.signal
-        }
-        )
+        return tiles.map(t => t.getVisibleSignals(playerTile)).flat()
     }
 
     return {

@@ -1,4 +1,4 @@
-import { coordToAxial } from "./hex";
+import { axialDist, coordToAxial } from "./hex";
 
 export const tile_size_px = 60;
 const HEXAGON_CONSTANT = Math.sqrt(3) / 2
@@ -47,6 +47,8 @@ export class Tile {
     this.name = `Sector ${this.q + 10}${this.r + 20}`
     this.explored = false
     this.selected = false
+
+    this.spaceStuff = []
   }
 
   static coordToPx(coord) {
@@ -81,7 +83,7 @@ export class Tile {
     if (this.waypoint) {
       color = WAYPOINT_COLOR
     }
-    if (this.star) {
+    if (this.spaceStuff.length > 0) {
       color = "yellow"
     }
 
@@ -115,6 +117,23 @@ export class Tile {
     } else {
       return "Unknown sector"
     }
+  }
+
+  getEvents() {
+    return this.spaceStuff.map(s => s.event).filter(e => e != null)
+  }
+
+  getVisibleSignals(tile) {
+    const signals = this.spaceStuff.map(s => s.signal).filter(s => s != null)
+    const signalsWithDistances = signals.map(s => {
+      s.distance = axialDist(this, tile)
+      return s
+    })
+    return signalsWithDistances.filter(s => s.distance < s.strength)
+  }
+
+  getWarnings() {
+    return this.spaceStuff.map(s => s.warning).filter(w => w != null)
   }
 
 }
