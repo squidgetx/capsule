@@ -86,7 +86,7 @@ export class Game {
     crossTileActions() {
         // Code used to handle arriving at a new tile
         const currentTile = this.player.currentTile
-        this.map.exploreAdjacentTiles(currentTile)
+        this.map.exploreTiles(currentTile)
         this.terminal.update(currentTile)
         this.terminal.setSignals(this.map.getSignals(currentTile))
 

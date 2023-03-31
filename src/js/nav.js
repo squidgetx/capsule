@@ -55,6 +55,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
             if (energyCost) {
                 navInfo.innerHTML += `<p>Energy cost: ${energyCost}</p>`
             }
+            navInfo.innerHTML += `<p class='nav-detail'>${destination.getNavDetail()}</p>`
             if (waypoints.length > 0) {
                 document.getElementById('nav-go').disabled = false;
             } else {

@@ -6,7 +6,7 @@ import { SPACE_STUFF } from "./spaceStuff";
 
 export const getMap = () => {
     // READ ONLY PROPERTIES 
-    const width = 8
+    const width = 9
     const height = 6
     const tiles = []
 
@@ -27,21 +27,15 @@ export const getMap = () => {
             }
         }
 
-        //select a handfull of random tiles, give them events
-        //tiles[0].event = events.asteroids;
-        tiles[3].spaceStuff = [SPACE_STUFF.asteroids]
-        //tiles[10].star = 10
-        tiles[10].spaceStuff = [SPACE_STUFF.star]
-        tiles[6].spaceStuff = [SPACE_STUFF.blackHole]
-        //tiles[15].event = events.pirates;
-        tiles[15].spaceStuff = [SPACE_STUFF.pirates]
+        // toy map for now
+        tiles[21].spaceStuff = [SPACE_STUFF.asteroids]
+        tiles[20].spaceStuff = [SPACE_STUFF.star]
+        tiles[32].spaceStuff = [SPACE_STUFF.emptyPod]
+        tiles[33].spaceStuff = [SPACE_STUFF.rescue1]
+        tiles[33].explored = true
+        tiles[8].spaceStuff = [SPACE_STUFF.wreckage]
+        tiles[8].explored = true
 
-        /*
-        tiles[21].signal = {
-            strength: 3,
-            text: "Every element of the program was in trouble and so were we. The simulators were not working, Mission Control was behind in virtually every area, and the flight and test procedures changed daily. Nothing we did had any shelf life. Not one of us stood up and said, ‘Dammit, stop!’ I don’t know what Thompson’s committee will find as the cause, but I know what I find. We are the cause! We were not ready! We did not do our job. We were rolling the dice, hoping that things would come together by launch day, when in our hearts we knew it would take a miracle. We were pushing the schedule and betting that the Cape would slip before we did."
-        }
-        */
     }
 
     const draw = (p5, camera) => {
@@ -132,15 +126,15 @@ export const getMap = () => {
         return adjacentAxial.map(a => getTile(axialToCoord(a))).filter(a => a != null)
     }
 
-    const exploreAdjacentTiles = (tile) => {
+    const exploreTiles = (tile) => {
         // Return array of adjacent tiles to the given tile
-        const adjacentTiles = getAdjacentTiles(tile)
+        //const adjacentTiles = getAdjacentTiles(tile)
 
         tiles.forEach(t => t.visible = false)
         tile.explored = true
         tile.visible = true
-        adjacentTiles.forEach(t => t.explored = true)
-        adjacentTiles.forEach(t => t.visible = true)
+        //adjacentTiles.forEach(t => t.explored = true)
+        //adjacentTiles.forEach(t => t.visible = true)
     }
 
     // Return array of signals
@@ -152,6 +146,6 @@ export const getMap = () => {
         width, height, tiles, getTile, getMousedTile,
         draw, generateTiles,
         getTilePath, getWaypointPath, markWaypointPath,
-        getSignals, exploreAdjacentTiles, getAdjacentTiles
+        getSignals, exploreTiles, getAdjacentTiles
     }
 }

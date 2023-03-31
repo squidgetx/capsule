@@ -2,13 +2,17 @@ import { setupTextAnimation } from "./util";
 import { RESOURCE } from "./game";
 
 export const applyEventEffect = (e, game) => {
-    console.log("Applying event", e)
     let effectText = ''
     for (const resource of Object.values(RESOURCE)) {
         if (e.effects[resource]) {
             game.changeResourceLog(resource, e.effects[resource])
             effectText += `${resource}: ${e.effects[resource]} `
         }
+    }
+
+    if (e.effects['explore']) {
+        game.map.tiles[e.effects['explore']].explored = true
+        effectText += `New sector added to navigation computer!`
     }
 
     return effectText

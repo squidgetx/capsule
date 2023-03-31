@@ -73,9 +73,13 @@ export class Tile {
     if (this.visible) {
       color = VISIBLE_COLOR
     }
-
-    if (this.event && this.visible || this.signal && this.visible) {
-      color = 'purple';
+    if (this.explored) {
+      if (this.spaceStuff.length > 0) {
+        color = "yellow"
+      }
+      if (this.event && this.visible || this.signal && this.visible) {
+        color = 'purple';
+      }
     }
     if (this.path) {
       color = '#72A0C1'
@@ -83,9 +87,7 @@ export class Tile {
     if (this.waypoint) {
       color = WAYPOINT_COLOR
     }
-    if (this.spaceStuff.length > 0) {
-      color = "yellow"
-    }
+
 
     if (color_override) {
       color = color_override
@@ -119,6 +121,19 @@ export class Tile {
     }
   }
 
+  getNavDetail() {
+    if (this.explored) {
+      const navDetails = this.spaceStuff.map(s => s.navDetail).filter(s => s != null)
+      if (navDetails.length > 0) {
+        return navDetails.join(' ')
+      }
+      return "An empty sector of space."
+    } else {
+      return "Unknown"
+    }
+
+  }
+
   getEvents() {
     return this.spaceStuff.map(s => s.event).filter(e => e != null)
   }
@@ -129,7 +144,7 @@ export class Tile {
       s.distance = axialDist(this, tile)
       return s
     })
-    return signalsWithDistances.filter(s => s.distance < s.strength)
+    return signalsWithDistances.filter(s => s.distance <= s.strength)
   }
 
   getWarnings() {

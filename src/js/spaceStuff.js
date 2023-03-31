@@ -1,5 +1,47 @@
 
 export const SPACE_STUFF = {
+    wreckage: {
+        title: "Ship Wreckage",
+        navDetail: "Wreckage of a large spacecraft detected. Closer inspection could be dangerous.",
+        inspect: "Wreckage of a large spacecraft detected. Closer inspection could be dangerous.",
+        warning: null,
+        event: {
+            title: "Ship Wreckage",
+            text: "The Arc was once two perfect rings propelling your people to their new home. Now it looks like a mess of shattered ribs, frozen in space. All the lights are out. You see detritus float in the dark, even at this distance. You dare not approach.",
+            blocking: false,
+            asModal: true,
+            effects: {}
+        },
+        signal: null
+    },
+    emptyPod: {
+        title: "Jettisoned Escape Pod",
+        inspect: "Another CAPSULE pod is floating in space!",
+        warning: null,
+        event: {
+            title: "Jettisoned Escape Pod",
+            text: "You maneuver as close as you can to the other pod, but it's empty. You requisition its energy stores for later use. You also take note of the plotted course in its navigation computer.",
+            effects: {
+                energy: 10,
+                morale: -1,
+                explore: 20,
+            },
+            blocking: false,
+            asModal: true,
+        },
+        signal: {
+            text: "Helllllp!!! I'm in an escape pod!",
+            strength: 1
+        }
+    },
+    rescue1: {
+        title: "Rescue Point",
+        navDetail: "The Capsule navigation system rendevous point!",
+        inspect: "There's nothing here...",
+        warning: null,
+        event: null,
+        signal: null,
+    },
     asteroids: {
         title: "The Tabrini Asteroids",
         type: "Asteroid Field",

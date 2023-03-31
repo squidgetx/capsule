@@ -155,9 +155,14 @@ body {
   text-align: left;
   border-top: 1px solid $secondary-light;
   display: flex;
-  height: 10vh;
+  height: 15vh;
   padding-left: 1em;
   padding-top: 1em;
+}
+
+.nav-detail {
+  text-transform: none;
+  font-size: 0.8em;
 }
 
 
