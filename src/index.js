@@ -6,6 +6,7 @@ import { getPlayer } from './js/player';
 import { getNav, setupNavControls } from './js/nav';
 import { Game, RESOURCE } from './js/game';
 import { getTerminal } from './js/terminal'
+import { opening } from './js/opening';
 
 let game, map, player, nav, terminal
 
@@ -28,7 +29,8 @@ const setup = () => {
 
     // event buttons
     document.getElementById("event-close").addEventListener("click", () => {
-        document.getElementById("event").classList.remove('show')
+        console.log('close event')
+        game.closeEvent()
     })
 
     // terminal controls
@@ -53,6 +55,8 @@ const setup = () => {
     // nav controls
     setupNavControls(nav)
 
+    // begin the game
+
 }
 
 const loop = () => {
@@ -63,3 +67,4 @@ const loop = () => {
 
 setup()
 loop()
+opening(game)

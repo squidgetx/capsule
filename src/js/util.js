@@ -41,7 +41,7 @@ export const setupTextAnimation = (div, text, options) => {
         callback: null,
         loop: null,
         pageSize: null,
-        interval: 50
+        interval: 40
     }
     for (const key of Object.keys(options)) {
         defaultOptions[key] = options[key]

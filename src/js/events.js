@@ -21,21 +21,45 @@ export const applyEventEffect = (e, game) => {
 export const renderEvent = (e, game, cb) => {
 
     document.getElementById("event").classList.add('show');
-    document.getElementById("event-title").innerHTML = e.title;
+    document.getElementById("event-title").innerHTML = e.title || '';
     document.getElementById("event-close").disabled = true;
     document.getElementById("event-effect").innerHTML = '';
+    document.getElementById("event-options").innerHTML = '';
 
-    const renderEventEffect = (e) => {
+    const afterText = (e) => {
+        // once event text is done scrolling, apply effects
         let effects = applyEventEffect(e, game)
         document.getElementById("event-effect").innerHTML = effects;
+
+        // enable closing the event
         document.getElementById("event-close").disabled = false;
+
+        // render event options
+        if (e.options) {
+            const optionWrapper = document.getElementById('event-options')
+            const optionButtons = e.options.map((op) => {
+                const b = document.createElement('button')
+                b.innerHTML = op.text
+                b.classList.add('btn')
+                b.addEventListener('click', () => {
+                    if (op.action) {
+                        op.action(game)
+                    }
+                    game.closeEvent()
+                })
+                return b
+            })
+            for (const optionButton of optionButtons) {
+                optionWrapper.appendChild(optionButton)
+            }
+        }
     }
 
     setupTextAnimation(
         document.getElementById('event-text'),
         e.text,
         {
-            callback: () => renderEventEffect(e)
+            callback: () => afterText(e)
         }
     );
 }

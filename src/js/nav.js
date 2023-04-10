@@ -42,7 +42,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
     const go = () => {
         Player.setMovingQueue([...waypointPath])
         // for animation
-        Terminal.appendMessage("Navigating to " + waypoints.slice(-1)[0].getName() + "...")
+        Terminal.playMessage("Navigating to " + waypoints.slice(-1)[0].getName() + "...", () => { })
     }
 
     const renderNavMenu = () => {
@@ -66,6 +66,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
             document.getElementById('nav-actions').classList.remove('show')
         }
     }
+
 
     const sketch = (p5) => {
 
@@ -107,6 +108,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
             if (allowInteract) {
                 renderNavMenu()
             }
+
         }
 
         let dragging = 0
@@ -181,7 +183,10 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
         clear,
         getDestination: () => highlightedTile,
         disableInteraction: () => { allowInteract = false },
-        enableInteraction: () => { allowInteract = true }
+        enableInteraction: () => { allowInteract = true },
+        turnOn: () => {
+            turningOn = -10
+        }
     }
 }
 
@@ -206,6 +211,7 @@ export const setupNavControls = (nav) => {
     document.getElementById('nav-go').addEventListener('click', () => {
         nav.go()
         dismissNav(nav)
+        // todo move this code somewhere it's actually supposed to go
     })
     document.getElementById('nav-cancel').addEventListener('click', () => {
         nav.clear()

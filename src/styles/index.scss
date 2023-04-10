@@ -62,11 +62,18 @@ body {
   padding: 1em;
 }
 
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 25vh;
+  margin: 1em;
+}
+
 #terminalWrapper {
   @include flexCenter(row);
-  margin: 1em;
-  width: 40vw;
-  height: 25vh;
+  width: 36vw;
+  height: 100%;
   border: 1px solid $secondary-light;
 }
 
@@ -127,17 +134,51 @@ body {
 }
 
 #mini-nav-wrapper {
-  @include flexCenter(1)
-}
-
-#mini-nav {
+  position: relative;
   display: block;
   margin: auto;
+  height: 200px;
+  width: 200px;
+}
+
+#mini-nav, #mini-nav-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
   border: 5px solid $secondary-light;
   border-radius: 50%;
   overflow: clip;
-  height: 200px;
-  width: 200px;
+  height: 100%;
+  width: 100%;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+#mini-nav-mask {
+  background-color: $secondary-dark;
+  opacity: 1;
+  z-index: 1;
+  @keyframes flicker {
+    25% {
+      opacity: 1;
+    };
+    50% {
+      opacity: 0;
+    };
+    75% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  &.on {
+    animation: flicker 0.5s steps(4);
+    opacity: 0;
+    z-index: -1;
+    transition: z-index 0.2s 1s
+  }
 }
 
 #navWrapper {
@@ -216,7 +257,7 @@ button {
   background-color: $secondary-dark;
   color: $secondary;
   opacity: 1 !important;
-  z-index: 1 !important;
+  z-index: 10 !important;
 }
 
 #event {
@@ -283,3 +324,15 @@ button {
   }
 }
 
+#clickBlocker {
+  cursor: grab;
+  z-index: 9; // less than event modal
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  &.dark {
+    background-color: $secondary-dark;
+  }
+}

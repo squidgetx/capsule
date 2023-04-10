@@ -1,5 +1,29 @@
 
 export const SPACE_STUFF = {
+    opening: {
+        text: "Your fingertips slide across something cold and smooth. The sensation pulls you back into your body. Consciousness needles at you. You can hear your heart pounding in your ears.\nThere is a terrible ache in your chest.",
+        disableClose: true,
+        options: [
+            {
+                text: "Open your eyes",
+                action: null,
+            }],
+        effects: {},
+    },
+    firstMovement: {
+        text: "The Capsule jolts awake and lets out a low hum. It lurches out of inertia but you barely notice. With your eyes fixed on the boundless expanse your body sinks heavy into the pilot seat. Stars move around you, flickering like distant flames.\nYour thoughts threaten to wander.",
+        effects: {},
+        options: [
+            {
+                text: "Drift to sleep",
+                action: null,
+            },
+            {
+                text: "Make yourself busy",
+                action: null,
+            }
+        ]
+    },
     wreckage: {
         title: "Ship Wreckage",
         navDetail: "Wreckage of a large spacecraft detected. Closer inspection could be dangerous.",

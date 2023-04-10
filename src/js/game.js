@@ -2,6 +2,7 @@
 import { inspect } from "./inspect";
 import { renderEnd } from "./end";
 import { applyEventEffect, renderEvent } from "./events";
+import { SPACE_STUFF } from "./spaceStuff";
 
 export const RESOURCE = {
     HEALTH: 'health',
@@ -11,7 +12,7 @@ export const RESOURCE = {
     OXYGEN: 'oxygen'
 }
 
-const MOVE_SPEED = 0.01
+const MOVE_SPEED = 0.001
 
 export class Game {
     constructor(player, map, terminal, nav) {
@@ -25,10 +26,21 @@ export class Game {
         this.oxygen = 100
         this.beacons = 5
         this.energy = 20
+
+        this.actionQueue = []
+        this.busy = false
+
+        this.firstMoveEvent = false
     }
 
     loop() {
         const move = this.player.move(MOVE_SPEED)
+
+        // todo this code should maybe live somewhere else 
+        if (this.player.movingTo && this.firstMoveEvent == false) {
+            this.firstMoveEvent = true
+            this.queueEvent(SPACE_STUFF.firstMovement)
+        }
 
         if (move == 'CROSS') {
             // we arrived at the next tile in the path
@@ -41,8 +53,11 @@ export class Game {
             const blockingEvents = this.player.currentTile.getEvents().filter(e => e.blocking == true)
             if (blockingEvents.length > 0) {
                 // TODO handle multiple events in one tile?
-                console.log('be', blockingEvents)
-                this.renderEvent(blockingEvents[0])
+                // TODO maybe nav is just paused while navigation is happening?
+                this.player.stopMoving()
+                this.nav.clear()
+                this.actionQueue.unshift(() =>
+                    renderEvent(blockingEvents[0], this))
             }
         }
 
@@ -50,7 +65,7 @@ export class Game {
             // check for warnings
             const warnings = this.player.movingTo.getWarnings()
             if (warnings.length > 0) {
-                this.terminal.appendMessage(warnings[0])
+                this.queueTerminalMessages(warnings[0])
             }
         }
 
@@ -61,25 +76,71 @@ export class Game {
 
     useBeacon() {
         if (this.beacons > 0) {
-            this.terminal.appendMessage("You light a rescue beacon...Nothing happens.")
+            this.queueTerminalMessages("You light a rescue beacon...Nothing happens.")
             this.changeResource(RESOURCE.BEACON, -1)
         } else {
-            this.terminal.appendMessage("You are out of rescue beacons. How are you going to get rescued now?")
+            this.queueTerminalMessages("You are out of rescue beacons. How are you going to get rescued now?")
         }
     }
 
     inspect() {
-        this.terminal.appendMessage(inspect(this.player, this.map))
+        this.queueTerminalMessages(inspect(this.player, this.map))
     }
 
-    renderEvent(evt) {
-        if (evt.asModal) {
-            renderEvent(evt, this)
-            this.player.stopMoving()
-            this.nav.clear()
+    closeEvent() {
+        document.getElementById("event").classList.remove('show')
+        this.endAction()
+    }
+
+    // Call this function to execute the next function
+    // in the game's event queue. Only does anything if 
+    // the game is not busy rendering another action
+    next() {
+        if (this.busy == true) {
+            console.log('bsy')
+            return
+        }
+        const nextAction = this.actionQueue.shift()
+        if (nextAction) {
+            this.busy = true
+            nextAction()
+        }
+    }
+
+    // Call this to mark an action as completed and to 
+    // automatically pull the next action off the queue
+    // Should only really be called in the helper functions below
+    // or in rare cases when designing custom game scripts
+    endAction() {
+        this.busy = false
+        this.next()
+    }
+
+    // Queue an action to be executed and automatically execute it
+    // if the queue is empty
+    queue(cb) {
+        this.actionQueue.push(cb)
+        this.next()
+    }
+
+    // Queue a message to be displayed to the terminal. Note
+    // how this fires the endAction callback when the message 
+    // is done displaying
+    queueTerminalMessages(...msgs) {
+        for (const msg of msgs) {
+            this.queue(() => this.terminal.playMessage(msg, () => this.endAction()))
+        }
+    }
+
+    queueEvent(evt) {
+        if (evt.inTerminal) {
+            this.queueTerminalMessages(evt.text)
+            this.queue(() => {
+                applyEventEffect(evt, this)
+                this.endAction()
+            })
         } else {
-            this.terminal.appendMessage(evt.text)
-            applyEventEffect(evt, this)
+            this.queue(() => renderEvent(evt, this))
         }
     }
 
@@ -91,18 +152,18 @@ export class Game {
         this.terminal.setSignals(this.map.getSignals(currentTile))
 
         if (currentTile.star != null) {
-            this.terminal.appendMessage("Nearby star system detected. Energy systems recovered.")
+            this.queueTerminalMessages("Nearby star system detected. Energy systems recovered.")
             this.changeResourceLog(RESOURCE.ENERGY, currentTile.star)
         }
     }
 
     endNavigationAction() {
         const currentTile = this.player.currentTile
-        this.terminal.appendMessage("Arrived at " + currentTile.getName())
+        this.queueTerminalMessages("Arrived at " + currentTile.getName())
         const arrivalEvents = this.player.currentTile.getEvents()
         if (arrivalEvents.length > 0) {
             console.log('ae', arrivalEvents)
-            this.renderEvent(arrivalEvents[0])
+            this.queueEvent(arrivalEvents[0])
         }
         this.nav.clear()
     }
@@ -110,7 +171,7 @@ export class Game {
     changeResourceLog(resource, delta) {
         this.changeResource(resource, delta)
         const verb = delta > 0 ? "Gained" : "Lost"
-        this.terminal.appendMessage(`${verb} ${delta} ${resource}`)
+        this.queueTerminalMessages(`${verb} ${delta} ${resource}`)
     }
 
     changeResource(resource, delta) {
