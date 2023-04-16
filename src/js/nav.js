@@ -239,15 +239,12 @@ const dismissNav = (nav) => {
     nav.disableInteraction()
     document.getElementById('navWrapper').classList.remove('show')
     mainNavHidden = true
-    // hacky for now redesign later
-    document.getElementById('terminalWrapper').classList.remove('navmode')
 }
 
 const showNav = (nav) => {
     nav.enableInteraction()
     document.getElementById('navWrapper').classList.add('show')
     mainNavHidden = false
-    document.getElementById('terminalWrapper').classList.add('navmode')
     nav.renderNavMenu()
 }
 
