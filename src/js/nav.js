@@ -32,13 +32,14 @@ export const getNav = (
     centerCamera()
 
     let highlightedTile = null;
+    let selectedTile = null;
     let waypoints = []
     let waypointPath = []
     let hypoNavPath = []
 
     // All code to do with changing positions should go here
 
-    const clear = () => {
+    const stop = () => {
         waypointPath = [];
         waypoints = []
         hypoNavPath = []
@@ -47,9 +48,16 @@ export const getNav = (
             t.waypoint = null
         }
         highlightedTile = null
+        selectedTile = null
+        Player.stopMoving()
+        renderNavMenu([], null)
+        game.queueTerminalMessages("Navigation cancelled.")
+
     }
 
     const go = () => {
+        Map.tiles.forEach(t => t.waypoint = false)
+        waypoints.forEach(w => w.waypoint = true)
         Player.setMovingQueue([...waypointPath])
         // for animation
         game.queueTerminalMessages("Navigating to " + waypoints.slice(-1)[0].getName() + "...")
@@ -59,24 +67,33 @@ export const getNav = (
         return waypoints.length ? waypoints.slice(-1)[0] : null
     }
 
-    const renderNavMenu = (path) => {
+    const renderNavMenu = (path, selected) => {
         const navInfo = document.getElementById('nav-action-detail')
         document.getElementById('nav-destination').innerHTML = ''
         document.getElementById('nav-terminal').innerHTML = ''
-        if (path.length > 0) {
-            const energyCost = path.length;
-            const destination = get_destination()
+        if (selected) {
+            const destination = selected
             const name = destination.explored ? destination.name : "Unknown Sector"
             document.getElementById('nav-destination').innerHTML = `${name}`
-            if (energyCost) {
-                navInfo.innerHTML = `<p>Energy cost: ${energyCost}</p>`
-            }
-            document.getElementsByClassName('nav-actions').forEach(c => c.classList.add('show'))
-
+            document.getElementById('nav-inspect').classList.add('show')
         } else {
-            navInfo.innerHTML = '<p class="placeholder">No destination selected</p>'
+            document.getElementById('nav-inspect').classList.remove('show')
+        }
 
-            document.getElementsByClassName('nav-actions').forEach(c => c.classList.remove('show'))
+        document.getElementById('nav-cancel').classList.remove('show')
+        if (path.length > 0) {
+            if (Player.movingTo == null) {
+                const energyCost = path.length;
+                navInfo.innerHTML = `<p>Energy cost: ${energyCost}</p>`
+                document.getElementById('nav-go').classList.add('show')
+            } else {
+                navInfo.innerHTML = '<p class="placeholder">Navigation in progress...</p>'
+                document.getElementById('nav-go').classList.remove('show')
+                document.getElementById('nav-cancel').classList.add('show')
+            }
+        } else {
+            document.getElementById('nav-go').classList.remove('show')
+            navInfo.innerHTML = '<p class="placeholder">No destination selected</p>'
         }
 
         document.getElementById('nav-energy').innerHTML = `Current energy: ${game.energy}`
@@ -100,6 +117,10 @@ export const getNav = (
             }
 
             Map.draw(p5, camera)
+            if (selectedTile) {
+                selectedTile.draw(p5, camera, 'rgba(0,255,100,0.5)')
+            }
+
 
             if (mouseActive(p5)) {
                 highlightedTile = Map.getMousedTile(p5.mouseX, p5.mouseY, camera)
@@ -107,19 +128,19 @@ export const getNav = (
                     highlightedTile.draw(p5, camera, 'rgba(255,255,255,0.5)')
                 }
                 /*
-                if (highlightedTile && Player.movingTo == null) {
-                    highlightedTile.draw(p5, camera, 'rgba(0,255,255,0.5)')
-                    const start = waypoints.length > 0 ? waypoints.slice(-1)[0] : Player.currentTile
-                    hypoNavPath = Map.getTilePath(start, highlightedTile)
-                    for (const t of hypoNavPath) {
-                        t.draw(p5, camera, 'rgba(255,255,255,0.5)')
-                    }
-                    if (dragging < DRAG_FRAME_DELAY)
-                        p5.cursor('pointer')
-                } else {
-                    hypoNavPath = []
-                }
-                */
+      if (highlightedTile && Player.movingTo == null) {
+          highlightedTile.draw(p5, camera, 'rgba(0,255,255,0.5)')
+          const start = waypoints.length > 0 ? waypoints.slice(-1)[0] : Player.currentTile
+          hypoNavPath = Map.getTilePath(start, highlightedTile)
+          for (const t of hypoNavPath) {
+              t.draw(p5, camera, 'rgba(255,255,255,0.5)')
+          }
+          if (dragging < DRAG_FRAME_DELAY)
+              p5.cursor('pointer')
+      } else {
+          hypoNavPath = []
+      }
+      */
             }
 
             Player.draw(p5, camera)
@@ -156,29 +177,25 @@ export const getNav = (
             if (!mouseActive(p5)) {
                 return
             }
-            if (dragging < DRAG_FRAME_DELAY && Player.movingTo == null) {
+            if (dragging < DRAG_FRAME_DELAY) {
                 dragging = 0
                 if (highlightedTile) {
-                    /*
-                    const indexClicked = waypoints.indexOf(highlightedTile)
-                    if (indexClicked != -1) {
-                        waypoints = waypoints.filter(a => a != highlightedTile)
-                        highlightedTile.waypoint = false
+
+                    if (selectedTile == highlightedTile) {
+                        selectedTile = null
                     } else {
-                        waypoints.push(highlightedTile)
-                        highlightedTile.waypoint = true
+                        selectedTile = highlightedTile
                     }
-                    */
-                    if (waypoints && highlightedTile == waypoints[0]) {
-                        Map.tiles.forEach(t => t.waypoint = false)
-                        waypoints = []
-                    } else {
-                        Map.tiles.forEach(t => t.waypoint = false)
-                        waypoints = [highlightedTile]
-                        highlightedTile.waypoint = true
+
+                    if (Player.movingTo == null) {
+                        if (selectedTile == null) {
+                            waypoints = []
+                        } else {
+                            waypoints = [selectedTile]
+                        }
+                        waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
                     }
-                    waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
-                    renderNavMenu(waypointPath)
+                    renderNavMenu(waypointPath, selectedTile)
                 }
             }
             dragging = 0;
@@ -206,8 +223,9 @@ export const getNav = (
     return {
         sketch,
         go,
-        clear,
+        stop,
         getDestination: get_destination,
+        renderNavMenu: () => renderNavMenu(waypointPath, selectedTile),
         disableInteraction: () => { allowInteract = false },
         enableInteraction: () => { allowInteract = true },
     }
@@ -230,6 +248,7 @@ const showNav = (nav) => {
     document.getElementById('navWrapper').classList.add('show')
     mainNavHidden = false
     document.getElementById('terminalWrapper').classList.add('navmode')
+    nav.renderNavMenu()
 }
 
 export const setupNavControls = (nav) => {
@@ -239,11 +258,9 @@ export const setupNavControls = (nav) => {
         dismissNav(nav)
         // todo move this code somewhere it's actually supposed to go
     })
-    /*
     document.getElementById('nav-cancel').addEventListener('click', () => {
-        nav.clear()
+        nav.stop()
     })
-    */
 
     document.getElementById('mini-nav').addEventListener('click', () => {
         if (mainNavHidden) {

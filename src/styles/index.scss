@@ -30,6 +30,8 @@
   color: $font-color;
   padding: 1em 1em 1em 1em;
   border: 1px solid $secondary-light;
+  background-color: $secondary-dark;
+
   overflow: clip;
   z-index: -1;
 }
@@ -246,7 +248,6 @@ body {
 
 
 .nav-actions {
-  border: 0;
   text-align: left;
   opacity: 0;
   button {
@@ -293,8 +294,6 @@ button {
 }
 
 .show {
-  background-color: $secondary-dark;
-  color: $secondary;
   opacity: 1 !important;
   z-index: 10 !important;
 }
