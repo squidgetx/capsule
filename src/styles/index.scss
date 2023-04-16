@@ -90,7 +90,7 @@ body {
   text-align: left;
 }
 
-#terminalHeader {
+#terminal-header {
   color: $secondary;
   flex-shrink: 0;
   padding-bottom: 0.5em;
@@ -191,10 +191,17 @@ body {
 #navWrapper {
   @include modal();
   top: 0;
-  width: 45vw;
+  max-width: 59vw;
   opacity: 0;
   display: inline-block;
   border: 1px solid $secondary-light;
+}
+
+#nav {
+  text-align: center;
+  canvas {
+    margin: auto;
+  }
 }
 
 #nav-close {
@@ -206,14 +213,31 @@ body {
 
 
 #nav-info-wrapper {
-  @include caps();
   text-align: left;
   border-top: 1px solid $secondary-light;
+  padding: 1em;
+  background-color: $secondary-dark;
   display: flex;
-  height: 15vh;
-  padding-left: 1em;
-  padding-top: 1em;
 }
+
+#nav-destination, #nav-inspect {
+  display: inline-block;
+}
+
+.placeholder {
+  color: $secondary;
+  font-style: italic;
+}
+
+#nav-terminal-wrapper {
+  min-width: 50%;
+  flex-grow: 2;
+}
+
+#nav-action {
+  width: 35%;
+}
+
 
 .nav-detail {
   text-transform: none;
@@ -221,13 +245,14 @@ body {
 }
 
 
-#nav-actions {
-  @include flexCenter(column);
-  margin-left: auto;
-  width: 10em;
+.nav-actions {
   border: 0;
+  text-align: left;
+  opacity: 0;
   button {
-    flex: 1;
+    width: 40%;
+    margin: auto;
+    display: inline-block;
   }
 }
 

@@ -4,6 +4,7 @@
 import { SPACE_STUFF } from "./spaceStuff";
 
 export function opening(game) {
+    /*
     const clickBlocker = document.createElement('div')
     document.body.appendChild(clickBlocker)
     clickBlocker.id = 'clickBlocker'
@@ -25,6 +26,7 @@ export function opening(game) {
             game.endAction()
         })
     })
+    */
     game.queue(() => {
         document.getElementById('mini-nav-mask').classList.add('on')
         game.endAction()

@@ -15,11 +15,10 @@ export const RESOURCE = {
 const MOVE_SPEED = 0.001
 
 export class Game {
-    constructor(player, map, terminal, nav) {
+    constructor(player, map, terminal) {
         this.player = player;
         this.map = map
         this.terminal = terminal
-        this.nav = nav
 
         this.health = 5
         this.morale = 5

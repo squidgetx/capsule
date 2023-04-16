@@ -16,13 +16,14 @@ const setup = () => {
     terminal = getTerminal()
     map.generateTiles()
     player = getPlayer(map.tiles[7])
-    nav = getNav(player, map, terminal, 600, 350, 1, false, false)
-    game = new Game(player, map, terminal, nav)
+    game = new Game(player, map, terminal)
+    nav = getNav(game, 600, 400, 1, false, false)
+    game.nav = nav
 
     game.crossTileActions()
     game.renderResources()
 
-    const mininav = getNav(player, map, terminal, 200, 200, 1.75, true, false)
+    const mininav = getNav(game, 200, 200, 1.75, true, false)
 
     new p5(nav.sketch, document.getElementById('nav'));
     new p5(mininav.sketch, document.getElementById('mini-nav'));

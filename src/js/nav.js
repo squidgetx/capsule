@@ -1,4 +1,4 @@
-import { clamp } from './util';
+import { clamp, setupTextAnimation } from './util';
 
 /**
  * 
@@ -12,8 +12,18 @@ import { clamp } from './util';
  * @param {*} allowInteract boolean, whether to allow interaction
  * @returns object with properties 
  */
-export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLevel, followPlayer, allowInteract) => {
+export const getNav = (
+    game,
+    canvasWidth,
+    canvasHeight,
+    zoomLevel,
+    followPlayer,
+    allowInteract,
+) => {
     const camera = { x: 0, y: 0, zoom: zoomLevel }
+
+    const Player = game.player
+    const Map = game.map
 
     const centerCamera = () => {
         camera.x = (Player.px * camera.zoom - canvasWidth / 2) / camera.zoom
@@ -42,31 +52,35 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
     const go = () => {
         Player.setMovingQueue([...waypointPath])
         // for animation
-        Terminal.playMessage("Navigating to " + waypoints.slice(-1)[0].getName() + "...", () => { })
+        game.queueTerminalMessages("Navigating to " + waypoints.slice(-1)[0].getName() + "...")
     }
 
-    const renderNavMenu = () => {
-        const navInfo = document.getElementById('nav-info')
-        const destination = highlightedTile || waypoints.slice(-1)[0]
-        const energyCost = waypointPath.length + hypoNavPath.length;
-        if (destination) {
-            const name = destination.explored ? destination.name : "???"
-            navInfo.innerHTML = `<p>${name}</p>`
+    const get_destination = () => {
+        return waypoints.length ? waypoints.slice(-1)[0] : null
+    }
+
+    const renderNavMenu = (path) => {
+        const navInfo = document.getElementById('nav-action-detail')
+        document.getElementById('nav-destination').innerHTML = ''
+        document.getElementById('nav-terminal').innerHTML = ''
+        if (path.length > 0) {
+            const energyCost = path.length;
+            const destination = get_destination()
+            const name = destination.explored ? destination.name : "Unknown Sector"
+            document.getElementById('nav-destination').innerHTML = `${name}`
             if (energyCost) {
-                navInfo.innerHTML += `<p>Energy cost: ${energyCost}</p>`
+                navInfo.innerHTML = `<p>Energy cost: ${energyCost}</p>`
             }
-            navInfo.innerHTML += `<p class='nav-detail'>${destination.getNavDetail()}</p>`
-            if (waypoints.length > 0) {
-                document.getElementById('nav-go').disabled = false;
-            } else {
-                document.getElementById('nav-go').disabled = true;
-            }
-        } else {
-            navInfo.innerHTML = ''
-            document.getElementById('nav-actions').classList.remove('show')
-        }
-    }
+            document.getElementsByClassName('nav-actions').forEach(c => c.classList.add('show'))
 
+        } else {
+            navInfo.innerHTML = '<p class="placeholder">No destination selected</p>'
+
+            document.getElementsByClassName('nav-actions').forEach(c => c.classList.remove('show'))
+        }
+
+        document.getElementById('nav-energy').innerHTML = `Current energy: ${game.energy}`
+    }
 
     const sketch = (p5) => {
 
@@ -91,8 +105,6 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
                 highlightedTile = Map.getMousedTile(p5.mouseX, p5.mouseY, camera)
                 if (highlightedTile) {
                     highlightedTile.draw(p5, camera, 'rgba(255,255,255,0.5)')
-                    //p5.pointer('cursor')
-
                 }
                 /*
                 if (highlightedTile && Player.movingTo == null) {
@@ -111,10 +123,6 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
             }
 
             Player.draw(p5, camera)
-
-            if (allowInteract) {
-                renderNavMenu()
-            }
 
         }
 
@@ -162,15 +170,15 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
                     }
                     */
                     if (waypoints && highlightedTile == waypoints[0]) {
-                        waypoints.forEach(w => w.waypoint = false)
+                        Map.tiles.forEach(t => t.waypoint = false)
                         waypoints = []
-                        waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
                     } else {
+                        Map.tiles.forEach(t => t.waypoint = false)
                         waypoints = [highlightedTile]
-                        waypoints.forEach(w => w.waypoint = false)
                         highlightedTile.waypoint = true
-                        waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
                     }
+                    waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
+                    renderNavMenu(waypointPath)
                 }
             }
             dragging = 0;
@@ -199,12 +207,9 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
         sketch,
         go,
         clear,
-        getDestination: () => highlightedTile,
+        getDestination: get_destination,
         disableInteraction: () => { allowInteract = false },
         enableInteraction: () => { allowInteract = true },
-        turnOn: () => {
-            turningOn = -10
-        }
     }
 }
 
@@ -234,9 +239,11 @@ export const setupNavControls = (nav) => {
         dismissNav(nav)
         // todo move this code somewhere it's actually supposed to go
     })
+    /*
     document.getElementById('nav-cancel').addEventListener('click', () => {
         nav.clear()
     })
+    */
 
     document.getElementById('mini-nav').addEventListener('click', () => {
         if (mainNavHidden) {
@@ -249,4 +256,10 @@ export const setupNavControls = (nav) => {
     document.getElementById('nav-close').addEventListener('click', () => {
         dismissNav(nav)
     })
+    document.getElementById('nav-inspect').addEventListener('click', (evt) => {
+        const navTerminal = document.getElementById('nav-terminal')
+        setupTextAnimation(navTerminal, nav.getDestination().getNavDetail(), {})
+        evt.stopImmediatePropagation()
+    })
 }
+
