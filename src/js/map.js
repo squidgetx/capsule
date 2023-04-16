@@ -128,13 +128,13 @@ export const getMap = () => {
 
     const exploreTiles = (tile) => {
         // Return array of adjacent tiles to the given tile
-        //const adjacentTiles = getAdjacentTiles(tile)
+        const adjacentTiles = getAdjacentTiles(tile)
 
         tiles.forEach(t => t.visible = false)
         tile.explored = true
         tile.visible = true
-        //adjacentTiles.forEach(t => t.explored = true)
-        //adjacentTiles.forEach(t => t.visible = true)
+        adjacentTiles.forEach(t => t.explored = true)
+        adjacentTiles.forEach(t => t.visible = true)
     }
 
     // Return array of signals

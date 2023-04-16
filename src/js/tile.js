@@ -3,14 +3,12 @@ import { axialDist, coordToAxial } from "./hex";
 export const tile_size_px = 60;
 const HEXAGON_CONSTANT = Math.sqrt(3) / 2
 
-const SELECTED_COLOR = 'red';
-const WAYPOINT_COLOR = 'green';
 const EXPLORED_COLOR = '#444'
 const VISIBLE_COLOR = '#aaa'
 const HIDDEN_COLOR = 'black'
 
 // draw a hexagon to the p5 context at x, y, with size s and given color
-const draw_hexagon = (p5, transX, transY, s, color) => {
+const draw_hexagon = (p5, transX, transY, s, color, strokeColor) => {
   p5.push();
   p5.stroke(color);
   p5.strokeWeight(1);
@@ -66,34 +64,33 @@ export class Tile {
   }
 
   draw(p5, camera, color_override) {
-    let color = HIDDEN_COLOR
+    let color = HIDDEN_COLOR;
     if (this.explored) {
       color = EXPLORED_COLOR
     }
     if (this.visible) {
       color = VISIBLE_COLOR
     }
+
     if (this.explored) {
       if (this.spaceStuff.length > 0) {
-        color = "yellow"
-      }
-      if (this.event && this.visible || this.signal && this.visible) {
-        color = 'purple';
+        color = 'yellow'
       }
     }
-    if (this.path) {
-      color = '#72A0C1'
-    }
-    if (this.waypoint) {
-      color = WAYPOINT_COLOR
-    }
-
 
     if (color_override) {
       color = color_override
     }
 
-    draw_hexagon(p5, (this.px - camera.x) * camera.zoom, (this.py - camera.y) * camera.zoom, tile_size_px / 2.1 * camera.zoom, color)
+    draw_hexagon(p5, (this.px - camera.x) * camera.zoom, (this.py - camera.y) * camera.zoom, tile_size_px / 2.1 * camera.zoom, color, color)
+
+    if (this.path) {
+      draw_hexagon(p5, (this.px - camera.x) * camera.zoom, (this.py - camera.y) * camera.zoom, tile_size_px / 2.1 * camera.zoom, 'rgba(255,255,255,0.5)', color)
+    }
+    if (this.waypoint) {
+      draw_hexagon(p5, (this.px - camera.x) * camera.zoom, (this.py - camera.y) * camera.zoom, tile_size_px / 2.1 * camera.zoom, 'rgba(255,0,0,0.5)', color)
+    }
+
 
     if (false && this.path) {
       // turn on to see path numbers

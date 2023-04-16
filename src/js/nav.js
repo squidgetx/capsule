@@ -89,6 +89,12 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
 
             if (mouseActive(p5)) {
                 highlightedTile = Map.getMousedTile(p5.mouseX, p5.mouseY, camera)
+                if (highlightedTile) {
+                    highlightedTile.draw(p5, camera, 'rgba(255,255,255,0.5)')
+                    //p5.pointer('cursor')
+
+                }
+                /*
                 if (highlightedTile && Player.movingTo == null) {
                     highlightedTile.draw(p5, camera, 'rgba(0,255,255,0.5)')
                     const start = waypoints.length > 0 ? waypoints.slice(-1)[0] : Player.currentTile
@@ -101,6 +107,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
                 } else {
                     hypoNavPath = []
                 }
+                */
             }
 
             Player.draw(p5, camera)
@@ -144,6 +151,7 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
             if (dragging < DRAG_FRAME_DELAY && Player.movingTo == null) {
                 dragging = 0
                 if (highlightedTile) {
+                    /*
                     const indexClicked = waypoints.indexOf(highlightedTile)
                     if (indexClicked != -1) {
                         waypoints = waypoints.filter(a => a != highlightedTile)
@@ -152,7 +160,17 @@ export const getNav = (Player, Map, Terminal, canvasWidth, canvasHeight, zoomLev
                         waypoints.push(highlightedTile)
                         highlightedTile.waypoint = true
                     }
-                    waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
+                    */
+                    if (waypoints && highlightedTile == waypoints[0]) {
+                        waypoints.forEach(w => w.waypoint = false)
+                        waypoints = []
+                        waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
+                    } else {
+                        waypoints = [highlightedTile]
+                        waypoints.forEach(w => w.waypoint = false)
+                        highlightedTile.waypoint = true
+                        waypointPath = Map.markWaypointPath(p5, Player.currentTile, waypoints)
+                    }
                 }
             }
             dragging = 0;
@@ -198,12 +216,15 @@ const dismissNav = (nav) => {
     nav.disableInteraction()
     document.getElementById('navWrapper').classList.remove('show')
     mainNavHidden = true
+    // hacky for now redesign later
+    document.getElementById('terminalWrapper').classList.remove('navmode')
 }
 
 const showNav = (nav) => {
     nav.enableInteraction()
     document.getElementById('navWrapper').classList.add('show')
     mainNavHidden = false
+    document.getElementById('terminalWrapper').classList.add('navmode')
 }
 
 export const setupNavControls = (nav) => {
@@ -223,5 +244,9 @@ export const setupNavControls = (nav) => {
         } else {
             dismissNav(nav)
         }
+    })
+
+    document.getElementById('nav-close').addEventListener('click', () => {
+        dismissNav(nav)
     })
 }
